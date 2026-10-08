@@ -1,0 +1,29 @@
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+.vercel/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Previous production site, kept locally as porting source and rollback.
+# Not versioned: see docs/DECISION_LOG.md, D008.
+legacy/
+
+# Raw media sources (stock downloads, uncompressed exports).
+# Only optimized, licensed outputs under public/ are versioned: see D006.
+assets-src/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+npm-debug.log*
