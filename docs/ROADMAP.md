@@ -25,8 +25,8 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 - [x] Design tokens in one CSS file; fonts self-hosted
 - [x] One config file for contact details and external links
 - [x] README, written after the scaffold so it describes what exists
-- [ ] Vercel project connected, deploying to a preview URL. The domain does not
-      move yet.
+- [x] Vercel project connected, deploying `main` to a `vercel.app` URL. The
+      domain does not move yet.
 
 ## Phase 3 · Parity
 

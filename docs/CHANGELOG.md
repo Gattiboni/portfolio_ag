@@ -6,6 +6,8 @@ existed.
 
 ---
 
+[2026-10-08] Deploy — Repository connected to Vercel. First build from `main` (commit `c90a9ad`): clean install, 2 static pages, no warnings in the build log. Both routes re-checked on the deployed URL with the same browser checks as the local β: tokens, three self-hosted font files, `lang`, canonical and `hreflang` pointing at the real domain, no request to a font CDN. The custom domain still points at the previous host. Phase 2 closed.
+
 [2026-10-08] Docs — README written from the delivered scaffold. Decision log: D011 to D014 added, D006 updated with the chosen clip, D008 and D009 closed.
 
 [2026-10-08] Validation — Scaffold β. Code agent: clean install with 0 vulnerabilities; `check`, `lint`, `format:check` and `build` exit 0 without warnings. Browser agent on the dev server, both routes: background `rgb(17, 22, 27)`, heading in Fraunces, body in Sora 300, label in IBM Plex Mono, `lang` `en` and `pt-BR`, canonical plus three `hreflang` each, three font files served from the site itself, no request to a font CDN, no horizontal scroll. Built files re-read independently: `dist/index.html` and `dist/pt/index.html` match.
