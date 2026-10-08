@@ -13,6 +13,7 @@ import HeroLead from "./HeroLead.astro";
 import About from "./About.astro";
 import Help from "./Help.astro";
 import Manifesto from "./Manifesto.astro";
+import Work from "./Work.astro";
 import Case from "./Case.astro";
 import Projects from "./Projects.astro";
 import Marquee from "./Marquee.astro";
@@ -65,6 +66,7 @@ const entries: readonly Entry[] = [
     label: t.manifesto.eyebrow,
     inNav: false,
   },
+  { id: "metodo", Component: Work, label: t.work.eyebrow, inNav: false },
   { id: "case", Component: Case, label: t.nav.case, inNav: true },
   {
     href: getRelativeLocaleUrl(locale, DEEP_DIVE_PATH),

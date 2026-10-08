@@ -1,0 +1,33 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
+}
+
+const { t, id } = Astro.props;
+const w = t.work;
+// Staggered reveal, as the case's facts.
+const delay = (i: number) =>
+  i === 0 ? undefined : `transition-delay:${(i * 0.08).toFixed(2)}s`;
+---
+
+<!-- No visual language of its own: the shared section heading, the cards'
+     two-column grid (one column at 760px and below) and the case's fact
+     block, all from primitives.css. -->
+<section class="wrap" id={id}>
+  <div class="sec-head">
+    <div class="sec-eyebrow rise">{w.eyebrow}</div>
+    <h2 class="rise" set:html={w.titleHtml} />
+  </div>
+  <div class="grid">
+    {w.items.map((item, i) => (
+      <div class="fact rise" style={delay(i)}>
+        <b>{item.title}</b>
+        <span>{item.text}</span>
+      </div>
+    ))}
+  </div>
+</section>

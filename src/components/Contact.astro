@@ -28,15 +28,12 @@ const c = t.contact;
     >
       {c.linkedin}
     </a>
-    <a
-      class="btn btn-ghost"
-      href={site.whatsapp}
-      target="_blank"
-      rel="noopener"
-    >
+  </div>
+  <p class="contact-alt rise">
+    <a class="quiet-link" href={site.whatsapp} target="_blank" rel="noopener">
       {c.whatsapp}
     </a>
-  </div>
+  </p>
 </section>
 
 <style is:global>
@@ -58,5 +55,13 @@ const c = t.contact;
     flex-wrap: wrap;
     gap: 16px;
     margin-top: 38px;
+  }
+  /* WhatsApp as a discreet text link under the buttons, in the buttons'
+     mono at the footer's size. */
+  .contact-alt {
+    margin-top: 22px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
   }
 </style>

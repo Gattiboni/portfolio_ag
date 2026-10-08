@@ -88,10 +88,13 @@ Text is the visitor's choice, never the default.
 
 ## Phase 7 · Copy and positioning
 
-- **⚑ Headline and title · ⚑ Which secondary projects stay**
-- [ ] Copy revised section by section in both languages, English written and
-      not machine translated
-- [ ] GitHub link in the header, contact section and footer (D010)
+- [x] One title, the audience and the highlighted sentence decided (D026)
+- [x] Copy revised in both languages from a copy file; no string written in
+      code
+- [x] New section "How I work"
+- [x] Secondary projects and gallery left as they are, by decision
+- [x] Repository linked in the footer; contact reordered (D026, superseding
+      D010)
 
 ## Phase 8 · Launch
 
@@ -119,12 +122,12 @@ has a phase.
       round)
 - [x] Back-to-top exists only in the footer; it should follow the scroll
       (done in Phase 5, D021)
-- [ ] Dashes used as stylistic punctuation in the copy, against the voice rule
-      (Phase 7)
-- [ ] Untranslated strings: the language group label and the chat status line
-      (Phase 7)
-- [ ] English social description reuses the long meta description while
-      Portuguese has a short line (Phase 7)
+- [x] Dashes used as stylistic punctuation in the copy, against the voice rule
+      (removed in Phase 7, except in the projects section, left untouched)
+- [x] Untranslated strings: the language group label (fixed in Phase 7). The
+      chat status line reads the same in both languages and stays
+- [x] English social description reuses the long meta description while
+      Portuguese has a short line (fixed in Phase 7)
 
 ## Found during the hero work
 
@@ -139,7 +142,7 @@ has a phase.
       Safari; untested (with the phone β)
 - [ ] The five PNGs carry design-tool metadata, including account identifiers,
       as they already do on the previous site. Strip it when the images are
-      replaced (Phase 7 or 8)
+      replaced (Phase 8)
 - [ ] `favicon.ico` returns 404, the only console message (Phase 8, already
       planned)
 
@@ -154,14 +157,14 @@ has a phase.
       margin (16 px against 28 px at 320). Accepted with the fix that keeps it
       on one line
 - [ ] On phones the lightbox arrows sit over the edges of the image, as on the
-      previous site (Phase 7, with the gallery decision)
-- [ ] The bars over the revenue figure carry no labels. Decide with the copy
-      whether they need any (Phase 7)
+      previous site. The gallery stays as it is (D026); accepted
+- [ ] The bars over the revenue figure carry no labels. Not raised in the copy
+      round; still open
 
 ## Found during the deep dive
 
-- [ ] The home page still says "8 HR domains", a count dropped by D024
-      (Phase 7)
+- [x] The home page still says "8 HR domains", a count dropped by D024
+      (replaced in Phase 7)
 - [ ] On the deep-dive page at 899 px and below the menu holds a single link,
       back to the portfolio. Consistent with the home page, slightly silly;
       revisit if it bothers
@@ -177,5 +180,6 @@ has a phase.
 
 ## Later
 
-- [ ] GitHub profile review and organisation
+- [ ] GitHub profile review and organisation. The profile is not linked from
+      the site (D026)
 - [ ] Higher resolution images for the secondary projects

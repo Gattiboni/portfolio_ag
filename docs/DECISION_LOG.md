@@ -219,7 +219,8 @@ header, the contact section and the footer.
 **Rationale.** Alan's call: get the site standing first. The profile review is
 tracked in the roadmap as later work.
 
-**Owner.** Alan. **Status.** Closed.
+**Owner.** Alan. **Status.** Superseded by D026: the site links the repository,
+not the profile.
 
 ---
 
@@ -678,11 +679,52 @@ the measurements, the card rule). **Status.** Closed.
 
 ---
 
+## D026 — 2026-10-08 · Positioning: one title, a showcase for two audiences, and what was left alone
+
+**Context.** Three titles were in circulation: "Data & AI Solutions Architect"
+on the site, an engineering title on the CV and a third framing in the
+author's job-search plan. The site also read mostly as a consultancy pitch
+while its author is looking for a remote role, and its strongest sentence
+opened with a negation: "I don't come from engineering."
+
+**Alternatives.** Audience: (a) hiring managers first, (b) clients first,
+(c) both, as a showcase. Title: (d) one title everywhere including the CV,
+(e) one title on the site and the deep dive, CVs free to vary by role. The
+sentence: (f) keep the negation, (g) tell the same fact as a cause. Secondary
+projects: (h) cut to three and drop the gallery, (i) leave them.
+
+**Decision.** (c), (e), (g) and (i). The title is "Data & AI Solutions
+Architect", in English in both languages: it did not survive translation and
+the author prefers it untranslated. "A portfolio is not a CV": whoever wants
+the CV finds it elsewhere. The sentence now reads "Fifteen years running
+projects taught me what the data has to answer. When I became an engineer, I
+already knew where it is born and where it gets lost." A short section, "How I
+work", serves the hiring half next to "How I help", which serves the other;
+the page index now has seven entries. The projects and their gallery are
+untouched, by the author's explicit call. "RAG" stays in the list of tools:
+the author knows it and chose not to use vector retrieval in the main case,
+and says so there.
+
+The repository, not the GitHub profile, is linked, once, in the footer of
+every page (this supersedes D010). In the contact section WhatsApp stops
+being a button. The count of business domains dropped by D024 gives way to
+two numbers the logs support: about 100 releases and 231 decisions. Dashes
+used as stylistic punctuation left the copy, except in the section that was
+not to be touched.
+
+**Rationale.** Architecture is, in the author's words, the core of the method,
+which settles the title. Telling the career in order, operations first and
+engineering after, answers the objection the negation invited. Every string
+came from a copy file and none was written in code.
+
+**Owner.** Alan (every choice, and the final wording of the sentence);
+assistant (drafts and the section). **Status.** Closed. The role line of the
+hero is no longer a placeholder (D018).
+
+---
+
 ## Open
 
 - **Text over the hero video.** How much copy sits on the video before the fade.
 - **Section index on the deep-dive page.** Left out on purpose; decide after
   living with the page.
-- **Headline and title.** One wording across site, deep dive and CV.
-- **Secondary projects.** How many cards stay, and whether the gallery stays
-  while its images are small.

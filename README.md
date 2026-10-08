@@ -1,59 +1,49 @@
 # portfolio_ag
 
-Source of [portfolio.alangattiboni.site](https://portfolio.alangattiboni.site),
-the portfolio of Alan Gattiboni: data and AI platforms, from diagnosis to
-production.
+Source of [portfolio.alangattiboni.site](https://portfolio.alangattiboni.site):
+Alan Gattiboni, Data & AI Solutions Architect. A static site, two pages, two
+languages.
 
-**Status: rebuild in progress.** The site currently online is the previous
-version, a single hand-uploaded HTML file. This repository holds its
-replacement. That site was first ported here with parity, measured against
-production at three widths in both languages (D015). On top of that base the
-hero now opens with a looping video that never blocks the first paint (D018),
-three moments of the page move with the scroll (D020), a section index shows
-where the visitor is and jumps anywhere (D021), and a second page walks through
-the main case as a graph in which every line is a declared relation (D023). A
-preview of this repository is deployed at
+**Status: pre-launch.** The build in this repository is deployed at
 [portfolio-ag-ten.vercel.app](https://portfolio-ag-ten.vercel.app). The domain
-still points at the previous site and moves at launch. What comes next (copy,
-launch) is in [docs/ROADMAP.md](docs/ROADMAP.md).
+still serves the previous version and moves at launch
+([roadmap](docs/ROADMAP.md)).
 
-## Why the repository is public
+## What is in it
 
-The way the site is built is part of what it is meant to show. Every decision
-is recorded with its context and the alternatives that lost, including the ones
-that were reversed. Start with [docs/DECISION_LOG.md](docs/DECISION_LOG.md).
-
-## Principles
-
-- **Incremental.** No decision may be an obvious obstacle to the next one.
-- **Modular.** Anything can be plugged in or pulled out without a rewrite.
-- **No technical debt.** No workarounds, no "we will fix it later".
-- **Documentation closes with the work.** If it changed, it is in the
-  changelog. If it was decided, it is in the decision log.
+- **Home.** A hero whose video never blocks first paint: a real poster image is
+  served, the video is attached after `load`, and not at all under reduced
+  motion or data saver. Three scroll-driven effects in plain CSS, each with a
+  static fallback. A section index rendered from the same list that composes
+  the page and the bar.
+- **Deep dive.** The main case as a graph: a static SVG whose positions are
+  computed at build, where every line is a relation declared in the data with
+  its reason. A panel with three levels of reading, the same content as a
+  list, and real links underneath when JavaScript is off.
+- **Content as data.** One file per language for each page. The build fails if
+  the two languages diverge in shape, or if a relation points at something
+  that does not exist.
+- **Two languages.** English at `/`, Portuguese at `/pt/`, one detection rule
+  for every page, a switch that keeps the page and the anchor.
+- **What is not in it.** No client framework, no animation library, no scroll
+  listener, no third-party request.
 
 ## Stack
 
-| Layer      | Choice                                                          |
-| ---------- | --------------------------------------------------------------- |
-| Framework  | Astro 7, static output                                          |
-| Language   | TypeScript 6, strict                                            |
-| Styling    | Plain CSS with design tokens as custom properties               |
-| Fonts      | Fraunces, Sora, IBM Plex Mono, self-hosted, latin subset        |
-| Locales    | English at `/`, Portuguese at `/pt/`                            |
-| Lint       | ESLint 10 for `.astro` and `.ts`                                |
-| Formatting | Prettier for `.astro`, `.ts`, `.css`, `.md`, `.json`            |
-| Hosting    | Vercel, planned. DNS stays at the current provider until launch |
+| Layer     | Choice                                                    |
+| --------- | --------------------------------------------------------- |
+| Framework | Astro 7, static output                                    |
+| Language  | TypeScript 6, strict                                      |
+| Styling   | Plain CSS, design tokens as custom properties             |
+| Fonts     | Fraunces, Sora, IBM Plex Mono, self-hosted, latin subset  |
+| Quality   | ESLint 10 for `.astro` and `.ts`, Prettier for everything |
+| Hosting   | Vercel                                                    |
 
-Exact versions are pinned in `package.json`. The reasons behind each choice are
-in the decision log: D002 (framework), D003 (hosting), D004 (language), D011
-(versions), D012 (fonts), D013 (lint scope).
+Versions are pinned in `package.json`.
 
-## Requirements
+## Run
 
-Node `^22.22.3 || ^24.16.0 || >=26.3.0`. The floor is set by the lint
-toolchain, not by Astro (D011).
-
-## Setup
+Node `^22.22.3 || ^24.16.0 || >=26.3.0`. No environment variables.
 
 ```bash
 git clone https://github.com/Gattiboni/portfolio_ag.git
@@ -62,83 +52,60 @@ npm install
 npm run dev
 ```
 
-The dev server prints its address, by default `http://localhost:4321`.
-There are no environment variables.
+| Command                | What it does                            |
+| ---------------------- | --------------------------------------- |
+| `npm run dev`          | Dev server, `http://localhost:4321`     |
+| `npm run build`        | Static site into `dist/`                |
+| `npm run preview`      | Serves the built site                   |
+| `npm run check`        | Type-checks `.astro` and `.ts`          |
+| `npm run lint`         | ESLint (`lint:fix` to apply fixes)      |
+| `npm run format:check` | Prettier, read-only (`format` to write) |
 
-## Scripts
-
-| Command                | What it does                                     |
-| ---------------------- | ------------------------------------------------ |
-| `npm run dev`          | Starts the dev server                            |
-| `npm run build`        | Builds the static site into `dist/`              |
-| `npm run preview`      | Serves the built site locally                    |
-| `npm run check`        | Type-checks `.astro` and `.ts` files             |
-| `npm run lint`         | Runs ESLint and reports                          |
-| `npm run lint:fix`     | Runs ESLint and fixes what it can                |
-| `npm run format`       | Formats sources with Prettier                    |
-| `npm run format:check` | Lists files that are not formatted, changes none |
-
-Before a commit: `check`, `lint`, `format:check` and `build` all exit 0 with no
+Before a commit, `check`, `lint`, `format:check` and `build` exit 0 with no
 warnings.
 
 ## Structure
 
 ```
-portfolio_ag/
-├── src/
-│   ├── components/           # One per section; HomePage holds the list
-│   │   └── deep-dive/        # The second page: graph, panel, list, card
-│   ├── config/site.ts        # Contact details, links, locales. One place.
-│   ├── data/deep-dive/       # Deep-dive content, one file per language
-│   ├── i18n/                 # en.ts sets the shape, pt.ts must match it
-│   ├── layouts/              # BaseLayout: lang, canonical, hreflang, meta
-│   ├── lib/deep-dive/        # Content type and validation, graph geometry
-│   ├── pages/                # Home and deep dive, at / and /pt/
-│   ├── scripts/              # One module per behaviour, strict TypeScript
-│   └── styles/               # tokens, fonts, global, shared primitives
-├── public/
-│   ├── img/                  # Images and hero posters, served as they are
-│   └── video/                # Hero loop, 1080p and 720p, WebM and MP4
-├── docs/
-│   ├── DECISION_LOG.md       # Decisions with context and alternatives
-│   ├── CHANGELOG.md          # What happened, newest on top
-│   ├── ROADMAP.md            # Phases, order, open decisions
-│   └── VISUAL_IDENTITY.md    # Colour, type, shape, motion, voice
-├── astro.config.ts
-├── eslint.config.js
-└── package.json
+src/
+├── components/        # One per section; HomePage holds the list of sections
+│   └── deep-dive/     # Graph, panel, list, card
+├── config/site.ts     # Contact details, links, locales
+├── data/deep-dive/    # Deep-dive content, one file per language
+├── i18n/              # Dictionaries (en.ts sets the shape) and routes
+├── layouts/           # lang, canonical, hreflang, language detection
+├── lib/deep-dive/     # Content type and validation, graph geometry
+├── pages/             # Home and deep dive, at / and /pt/
+├── scripts/           # One module per behaviour
+└── styles/            # Tokens, fonts, global, shared primitives
+public/                # Images, posters and the hero loop
+docs/                  # Decision log, changelog, roadmap, visual identity
 ```
 
-Two folders exist locally and are ignored by git: `legacy/`, the previous site
-kept as porting source (D008), and `assets-src/`, raw media before optimisation
-(D006).
+## How it is built
 
-## How the work is done
+One person decides. An assistant drafts specs, copy and docs. A code agent
+implements and never commits. The plan is reviewed before any file is touched
+(α); the result is validated at runtime, by the code agent on the command line
+and by a second agent in a browser, before anything is integrated (β). Each
+phase lands as one commit, with its docs.
 
-One person decides. A chat assistant drafts specs, copy and documentation. A
-code agent implements and never commits. Two gates sit between them:
+Every decision is recorded with its context and the alternatives that lost,
+including the ones later reversed:
 
-- **α**: the plan is reviewed before any file is touched.
-- **β**: the result is validated at runtime before anything is integrated.
-  Command-line checks are run by the code agent, browser checks by a second
-  agent that also re-reads the built files, and what the eye has to judge is
-  judged by the person (D014).
+- [Decision log](docs/DECISION_LOG.md)
+- [Changelog](docs/CHANGELOG.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Visual identity](docs/VISUAL_IDENTITY.md)
 
-Each phase lands as one commit, with the changelog and the decision log closed
-in the same commit.
-
-## Credits
+## Credits and licence
 
 Hero footage: "Close-up of Lit Match Burning in Dark" by Scott Precious, from
 [Pexels](https://www.pexels.com/video/close-up-of-lit-match-burning-in-dark-35888102/),
-used under the Pexels licence. Cut, denoised, black level adjusted and
-re-encoded for this site.
+under the Pexels licence; cut, denoised and re-encoded for this site.
 
-## Licence
-
-The code is under the [MIT licence](LICENSE). The content is not: copy and
-images are all rights reserved, and the hero footage belongs to its author
-under the licence named above.
+Code under the [MIT licence](LICENSE). Copy and images are all rights
+reserved.
 
 ---
 

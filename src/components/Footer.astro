@@ -14,6 +14,10 @@ const { t } = Astro.props;
     <span>
       © <span id="yr"></span> {site.name} · <span>{t.footer.location}</span>
     </span>
+    <!-- Opposite end of the line: .foot spreads its children apart. -->
+    <a class="quiet-link" href={site.repository} target="_blank" rel="noopener">
+      {t.footer.source}
+    </a>
   </div>
 </footer>
 

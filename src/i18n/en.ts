@@ -1,6 +1,7 @@
 // English dictionary. Its shape is the contract: pt.ts must match it key for
-// key (enforced by the Dictionary type). Copy is ported verbatim from the
-// production site; only the changes recorded in D005 differ.
+// key (enforced by the Dictionary type). Copy was ported verbatim from the
+// production site, changed by D005 and then by the Phase 7 copy file
+// (assets-src/copy/), applied as written.
 //
 // Keys ending in "Html" hold trusted inline markup and are rendered with
 // set:html. Every other string is plain text and is escaped on render.
@@ -11,13 +12,11 @@ export const en = {
     description:
       "Data & AI solutions architect. Data-driven platforms in production: medallion architecture, natural-language data copilots, automation and governance.",
     ogTitle: "Alan Gattiboni · Data & AI Solutions Architect",
-    // No English og:description existed in production; the meta description
-    // is reused instead of writing new copy.
     ogDescription:
-      "Data & AI solutions architect. Data-driven platforms in production: medallion architecture, natural-language data copilots, automation and governance.",
+      "Data and AI platforms that go from diagnosis to production.",
   },
   a11y: {
-    langGroup: "Idioma / Language",
+    langGroup: "Language",
     langPt: "Português",
     langEn: "English",
     menu: "Menu",
@@ -46,7 +45,7 @@ export const en = {
     phraseHtml:
       'A.I. has the potential to give us back <span class="thin">what is most human:</span> <span class="gold-i">our time.</span>',
     subHtml:
-      "I build data and AI platforms that do exactly that — <strong>they pull decisions out of the dark and give time back</strong> to the people running the business. From diagnosis to production.",
+      "I build data and AI platforms that do exactly that: <strong>they pull decisions out of the dark and give time back</strong> to the people running the business. From diagnosis to production.",
     cue: "here’s the story",
   },
   about: {
@@ -56,8 +55,8 @@ export const en = {
     p1Html:
       "I spent fifteen years inside operations: hospitality, retail, services. Opening new units, restructuring, financial management, cross-functional teams. I learned how an operation really works. <strong>Where data is born, where it gets lost,</strong> and how many decisions are made in the dark because the right information never arrived in time.",
     p2Html:
-      "That experience is what took me to the other side of the table. Not a career change — <strong>a consequence:</strong> after years of feeling the missing data layer firsthand, I decided to build it. Today I design and implement end-to-end data and AI platforms: architecture, pipelines, semantic modeling, governance, interface. <strong>From diagnosis to production.</strong>",
-    pull: "I don’t come from engineering. I come from operations — and that’s what makes the difference in what I build: I’ve been the user who needed the data and didn’t have it.",
+      "That experience is what took me to the other side of the table. Not a career change. <strong>A consequence:</strong> after years of feeling the missing data layer firsthand, I decided to build it. Today I design and implement end-to-end data and AI platforms: architecture, pipelines, semantic modeling, governance, interface. <strong>From diagnosis to production.</strong>",
+    pull: "Fifteen years running projects taught me what the data has to answer. When I became an engineer, I already knew where it is born and where it gets lost.",
     metric1Value: "R$1.1M → R$11M",
     metric1Label: "annual revenue of the operation I led as Managing Partner",
     metric2Value: "15k users",
@@ -70,7 +69,7 @@ export const en = {
       "Python · SQL · PostgreSQL · FastAPI · React · LLM APIs · RAG · NL-to-SQL · MCP ·",
     toolsGovernance: "governance & LGPD",
     languagesLabel: "Languages",
-    languages: "Fluent in Portuguese, Spanish and English",
+    languages: "Portuguese (native), English (C2), Spanish (fluent)",
   },
   help: {
     eyebrow: "How I help",
@@ -79,7 +78,7 @@ export const en = {
     items: [
       {
         title: "Diagnosis & consulting",
-        text: "I go inside the operation and map where data is born, where it gets lost and where decisions are made in the dark. I leave with a prioritized plan — not a report for the drawer.",
+        text: "I go inside the operation and map where data is born, where it gets lost and where decisions are made in the dark. I leave with a prioritized plan, not a report for the drawer.",
       },
       {
         title: "Automation & applied AI",
@@ -91,7 +90,7 @@ export const en = {
       },
       {
         title: "Education & adoption",
-        text: "Technology without adoption is just cost. Training, mentoring and workshops for teams and leaders to use AI day to day — with safety and judgment.",
+        text: "Technology without adoption is just cost. Training, mentoring and workshops for teams and leaders to use AI day to day, with safety and judgment.",
       },
     ],
   },
@@ -100,7 +99,29 @@ export const en = {
     p1Html:
       "Anyone can plug an LLM into a database. <strong>Almost all of those projects die</strong>, because the model hallucinates on top of dirty data.",
     p2Html:
-      'The hard work isn’t the interface. It’s <span class="g">the architecture underneath it</span>: consolidated data, clear contracts, governance, human curation. <span class="t">That’s what I build</span> — and the case below is the proof.',
+      'The hard work isn’t the interface. It’s <span class="g">the architecture underneath it</span>: consolidated data, clear contracts, governance, human curation. <span class="t">That’s what I build</span>, and the case below is the proof.',
+  },
+  work: {
+    eyebrow: "How I work",
+    titleHtml: "The problem in plain language first. <em>Code after.</em>",
+    items: [
+      {
+        title: "Spec before code.",
+        text: "The problem in natural language, then acceptance criteria that can be verified, then code.",
+      },
+      {
+        title: "Code agents, with gates.",
+        text: "Since late 2023. The plan is reviewed before any file is touched; diff and tests before anything merges. The agent never commits.",
+      },
+      {
+        title: "Incremental, modular, zero debt.",
+        text: "No decision blocks the next one. Any source plugs in or out without a rewrite.",
+      },
+      {
+        title: "Evidence, not slides.",
+        text: "Demos on real data. Changelog and decision log close with the release, not after.",
+      },
+    ],
   },
   case: {
     eyebrow: "Flagship case · in production",
@@ -146,8 +167,8 @@ export const en = {
         text: "a living platform, with real users and telemetry",
       },
       {
-        title: "8 HR domains modeled",
-        text: "each validated with its business owners",
+        title: "~100 releases, 231 decisions",
+        text: "each decision recorded with its reasoning",
       },
       {
         title: "Bilingual PT-BR | 中文",
@@ -287,6 +308,7 @@ export const en = {
   },
   footer: {
     location: "São Paulo, Brazil",
+    source: "Source on GitHub",
   },
 };
 

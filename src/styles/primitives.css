@@ -1,6 +1,6 @@
 /*
  * Shared primitives used by more than one section: layout wrapper, reveal,
- * section heading, cards, chips and buttons. Values and selectors are ported
+ * section heading, cards, chips, facts, quiet links and buttons. Values and selectors are ported
  * from the production stylesheet; section-specific rules live with their
  * component.
  *
@@ -90,7 +90,7 @@ a:focus-visible {
   border-radius: 4px;
 }
 
-/* Cards: "How I help" and projects */
+/* Cards: "How I help" and projects. The grid also lays out "How I work". */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -188,6 +188,37 @@ a:focus-visible {
 .chip:hover {
   border-color: var(--teal);
   color: var(--teal);
+}
+
+/* Fact: a title and a smaller line behind a teal left edge. The main case's
+   facts and "How I work". */
+.fact {
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--teal);
+  border-radius: 10px;
+  padding: 16px 18px;
+  background: rgb(255 255 255 / 0.015);
+}
+.fact b {
+  display: block;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--cream);
+}
+.fact span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* A secondary text link: muted, gold on hover. Focus uses the global
+   a:focus-visible outline above. Contact (WhatsApp) and footer (source). */
+.quiet-link {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+.quiet-link:hover {
+  color: var(--gold);
 }
 
 .btn {

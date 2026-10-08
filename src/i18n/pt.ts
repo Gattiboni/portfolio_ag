@@ -5,15 +5,15 @@ import type { Dictionary } from "./en";
 
 export const pt: Dictionary = {
   meta: {
-    title: "Alan Gattiboni · Arquiteto de Soluções de Dados e IA",
+    title: "Alan Gattiboni · Data & AI Solutions Architect",
     description:
       "Arquiteto de soluções de dados e IA. Plataformas data-driven em produção: arquitetura medallion, copilotos de dados em linguagem natural, automação e governança.",
-    ogTitle: "Alan Gattiboni · Arquiteto de Soluções de Dados e IA",
+    ogTitle: "Alan Gattiboni · Data & AI Solutions Architect",
     ogDescription:
       "Plataformas de dados e IA que saem do diagnóstico e chegam em produção.",
   },
   a11y: {
-    langGroup: "Idioma / Language",
+    langGroup: "Idioma",
     langPt: "Português",
     langEn: "English",
     menu: "Menu",
@@ -38,11 +38,11 @@ export const pt: Dictionary = {
     contact: "Contato",
   },
   hero: {
-    role: "Arquiteto de Soluções de Dados e IA · São Paulo",
+    role: "Data & AI Solutions Architect · São Paulo",
     phraseHtml:
       'A I.A. tem o potencial de nos devolver <span class="thin">o que há de mais humano:</span> <span class="gold-i">o nosso tempo.</span>',
     subHtml:
-      "Eu construo plataformas de dados e IA que fazem exatamente isso — <strong>tiram decisões do escuro e devolvem tempo</strong> para quem opera o negócio. Do diagnóstico à produção.",
+      "Eu construo plataformas de dados e IA que fazem exatamente isso: <strong>tiram decisões do escuro e devolvem tempo</strong> para quem opera o negócio. Do diagnóstico à produção.",
     cue: "conheça a história",
   },
   about: {
@@ -52,8 +52,8 @@ export const pt: Dictionary = {
     p1Html:
       "Passei quinze anos dentro de operações: hotelaria, varejo, serviços. Expansão de unidades, reestruturação, gestão financeira, times multidisciplinares. Aprendi como uma operação funciona de verdade. <strong>Onde o dado nasce, onde ele se perde,</strong> e o quanto de decisão é tomada no escuro porque a informação certa não chegou a tempo.",
     p2Html:
-      "Foi essa vivência que me levou para o outro lado da mesa. Não como virada de carreira — <strong>como consequência:</strong> depois de anos sentindo na pele a falta da camada de dados, decidi construí-la. Hoje projeto e implemento plataformas de dados e IA de ponta a ponta: arquitetura, pipelines, modelagem semântica, governança, interface. <strong>Do diagnóstico à produção.</strong>",
-    pull: "Não vim da engenharia. Vim da operação, e é isso que faz a diferença no que eu construo: eu já fui o usuário que precisava do dado e não tinha.",
+      "Foi essa vivência que me levou para o outro lado da mesa. Não como virada de carreira. <strong>Como consequência:</strong> depois de anos sentindo na pele a falta da camada de dados, decidi construí-la. Hoje projeto e implemento plataformas de dados e IA de ponta a ponta: arquitetura, pipelines, modelagem semântica, governança, interface. <strong>Do diagnóstico à produção.</strong>",
+    pull: "Quinze anos tocando projetos me ensinaram o que o dado precisa responder. Quando virei engenheiro, eu já sabia onde ele nasce e onde ele se perde.",
     metric1Value: "R$ 1,1 mi → R$ 11 mi",
     metric1Label: "receita anual da operação que liderei como Managing Partner",
     metric2Value: "15 mil usuários",
@@ -66,7 +66,7 @@ export const pt: Dictionary = {
       "Python · SQL · PostgreSQL · FastAPI · React · LLM APIs · RAG · NL-to-SQL · MCP ·",
     toolsGovernance: "governança e LGPD",
     languagesLabel: "Idiomas",
-    languages: "Português, espanhol e inglês fluentes",
+    languages: "Português (nativo), inglês (C2), espanhol (fluente)",
   },
   help: {
     eyebrow: "Como eu ajudo",
@@ -75,7 +75,7 @@ export const pt: Dictionary = {
     items: [
       {
         title: "Diagnóstico & consultoria",
-        text: "Entro na operação, mapeio onde o dado nasce, onde ele se perde e onde a decisão é tomada no escuro. Saio com um plano priorizado — não com um relatório de gaveta.",
+        text: "Entro na operação, mapeio onde o dado nasce, onde ele se perde e onde a decisão é tomada no escuro. Saio com um plano priorizado, não com um relatório de gaveta.",
       },
       {
         title: "Automação & IA aplicada",
@@ -87,7 +87,7 @@ export const pt: Dictionary = {
       },
       {
         title: "Educação & adoção",
-        text: "Tecnologia sem adoção é custo. Treinamentos, mentorias e workshops para times e gestores usarem IA no dia a dia — com segurança e critério.",
+        text: "Tecnologia sem adoção é custo. Treinamentos, mentorias e workshops para times e gestores usarem IA no dia a dia, com segurança e critério.",
       },
     ],
   },
@@ -96,7 +96,30 @@ export const pt: Dictionary = {
     p1Html:
       "Qualquer um pluga um LLM num banco de dados. <strong>Quase todos esses projetos morrem</strong>, porque o modelo alucina em cima de dado sujo.",
     p2Html:
-      'O trabalho difícil não é a interface. É <span class="g">a arquitetura embaixo dela</span>: dados consolidados, contratos claros, governança, curadoria humana. <span class="t">É isso que eu construo</span> — e o case a seguir é a prova.',
+      'O trabalho difícil não é a interface. É <span class="g">a arquitetura embaixo dela</span>: dados consolidados, contratos claros, governança, curadoria humana. <span class="t">É isso que eu construo</span>, e o case a seguir é a prova.',
+  },
+  work: {
+    eyebrow: "Como eu trabalho",
+    titleHtml:
+      "Primeiro o problema em linguagem simples. <em>Depois o código.</em>",
+    items: [
+      {
+        title: "Spec antes do código.",
+        text: "O problema em linguagem natural, depois critérios de aceite que dá pra verificar, depois o código.",
+      },
+      {
+        title: "Agentes de código, com portões.",
+        text: "Desde o fim de 2023. O plano é revisado antes de qualquer arquivo ser tocado; diff e testes antes de qualquer coisa entrar. O agente nunca faz commit.",
+      },
+      {
+        title: "Incremental, modular, zero dívida.",
+        text: "Nenhuma decisão trava a próxima. Qualquer fonte entra ou sai sem reescrita.",
+      },
+      {
+        title: "Evidência, não slide.",
+        text: "Demonstração em dado real. Changelog e decision log fecham junto com a entrega, não depois.",
+      },
+    ],
   },
   case: {
     eyebrow: "Case principal · em produção",
@@ -142,8 +165,8 @@ export const pt: Dictionary = {
         text: "plataforma viva, com usuários reais e telemetria",
       },
       {
-        title: "8 domínios de RH modelados",
-        text: "cada um validado com os donos de negócio",
+        title: "~100 releases, 231 decisões",
+        text: "cada decisão registrada com o porquê",
       },
       {
         title: "Bilíngue PT-BR | 中文",
@@ -282,5 +305,6 @@ export const pt: Dictionary = {
   },
   footer: {
     location: "São Paulo, Brasil",
+    source: "Código no GitHub",
   },
 };
