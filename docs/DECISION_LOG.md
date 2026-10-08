@@ -97,9 +97,13 @@ the first visit to `/`.
 **Rationale.** Keeps the behaviour visitors already have, and adds indexable,
 shareable URLs with `hreflang` for each language.
 
-**Owner.** Alan. **Status.** Behaviour closed. Mechanism (edge redirect versus
-inline script) is open until verified against current platform docs at scaffold
-time.
+**Owner.** Alan. **Status.** Closed. Mechanism decided on 2026-10-08: a minimal
+inline script in the `<head>` of `/` only, run before first paint. A saved
+choice of `pt`, or no saved choice and a browser language starting with `pt`,
+goes to `/pt/`; anything else stays. `/pt/` never redirects, because an explicit
+URL wins. The saved choice uses the same `localStorage` key as the previous
+site, so returning visitors keep their language after cutover. An edge rule was
+rejected because it would tie the behaviour to one host.
 
 ---
 
@@ -310,6 +314,73 @@ reported on. Both report before Alan reads the documentation and commits.
 it, and the person's attention goes where it cannot be replaced.
 
 **Owner.** Alan. **Status.** Closed.
+
+---
+
+## D015 — 2026-10-08 · The port is a parity port, with a closed list of differences
+
+**Context.** The previous site had to move into the new project before anything
+could be redesigned. Without a rule, a port turns into a redesign one small
+improvement at a time, and nobody can tell afterwards which change broke what.
+
+**Alternatives.** (a) Improve while porting. (b) Port with parity and allow only
+a written list of differences.
+
+**Decision.** (b). Six differences are allowed: the employer is anonymised and
+the chat demo is restyled in the portfolio palette (D005); the contact e-mail
+changes; each language is its own static page with detection and a switch
+(D004); a menu appears where the links used to vanish (D016); content stays
+visible without JavaScript (D017). Section anchors keep the previous ids in both
+languages, because published links and the language switch depend on them. The
+code agent lists anything else it finds and fixes none of it.
+
+**Rationale.** Parity is the safety net for every later phase. Measured against
+production at 1440, 768 and 390 px in both languages, the only geometric
+differences are the ones on the list. Favicon and social preview image moved
+out of this phase to launch: the preview image should show the new hero, which
+does not exist yet.
+
+**Owner.** Assistant proposed, Alan confirmed. **Status.** Closed.
+
+---
+
+## D016 — 2026-10-08 · Mobile menu starts at 820 px, not 720
+
+**Context.** The roadmap said the navigation disappeared below 720 px. That
+number came from an older copy of the site. Production hides the links at
+820 px and below, and 720 is not a breakpoint at all.
+
+**Alternatives.** (a) 720, as written. (b) 820, where the links actually vanish.
+
+**Decision.** (b). A round icon button opens a full-width panel under the bar
+with the same five links. It closes on choosing a link, on Escape and on a tap
+outside. Above 820 px nothing changes.
+
+**Rationale.** At 720 the range from 721 to 820 px would have had neither links
+nor menu. The instruction was wrong and the code agent stopped to ask instead
+of following it.
+
+**Owner.** Code agent raised it, Alan decided. **Status.** Closed.
+
+---
+
+## D017 — 2026-10-08 · Content is visible without JavaScript
+
+**Context.** The reveal-on-scroll effect starts every block at zero opacity and
+shows it from a script. On the previous site, a visitor without JavaScript saw
+an empty page below the header.
+
+**Alternatives.** (a) A `noscript` style that shows the blocks. (b) A class set
+on `<html>` by an inline script, with the hiding rule scoped to it. (c) Keep the
+previous behaviour for strict parity.
+
+**Decision.** (a).
+
+**Rationale.** With JavaScript on, nothing changes, so parity holds. (b) solves
+the same problem with more CSS and one more inline script on every page. (c)
+would inherit a defect on purpose.
+
+**Owner.** Code agent raised it, Alan decided. **Status.** Closed.
 
 ---
 

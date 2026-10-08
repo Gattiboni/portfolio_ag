@@ -30,13 +30,13 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 
 ## Phase 3 · Parity
 
-- [ ] Port the production site section by section, with no visual change other
-      than D005
-- [ ] One dictionary per language, routes `/` and `/pt/`, switch that keeps the
+- [x] Port the production site section by section, with no visual change other
+      than the six differences listed in D015
+- [x] One dictionary per language, routes `/` and `/pt/`, switch that keeps the
       current anchor, detection on first visit (D004)
-- [ ] Fix along the way: social preview image, favicon, mobile navigation
-- [ ] β: preview against production at 390, 768 and 1440 px, both languages,
-      `prefers-reduced-motion` on and off
+- [x] Menu where the links vanish, at 820 px and below (D016)
+- [x] Content visible without JavaScript (D017)
+- [x] β: new against production at 1440, 768 and 390 px, both languages
 - [ ] Single commit
 
 ## Phase 4 · Hero video
@@ -93,6 +93,30 @@ Text is the visitor's choice, never the default.
       the real domain
 - [ ] Previous host untouched for seven days, then removed
 - [ ] Changelog and decision log closed with the release
+
+## Found during the parity port
+
+Listed by the code agent and deliberately not fixed in Phase 3 (D015). Each one
+has a phase.
+
+- [ ] Language switch with `localStorage` blocked and a Portuguese browser:
+      choosing English returns to `/pt/` (Phase 4, before more work lands on
+      the header)
+- [ ] The language redirect drops the query string, which would lose campaign
+      parameters (before analytics, Phase 8)
+- [ ] Chat demo text renders at weight 300; the previous site showed 400 because
+      its 300 never loaded (Phase 5)
+- [ ] Lightbox does not trap keyboard focus and does not cap image height
+      (Phase 5)
+- [ ] Brand wraps to two lines between 330 and 359 px (Phase 5)
+- [ ] Back-to-top exists only in the footer; it should follow the scroll
+      (Phase 5, already planned there)
+- [ ] Dashes used as stylistic punctuation in the copy, against the voice rule
+      (Phase 7)
+- [ ] Untranslated strings: the language group label and the chat status line
+      (Phase 7)
+- [ ] English social description reuses the long meta description while
+      Portuguese has a short line (Phase 7)
 
 ## Later
 

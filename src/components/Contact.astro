@@ -1,0 +1,59 @@
+---
+import { site } from "../config/site";
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+const c = t.contact;
+---
+
+<section class="wrap contact" id="contato">
+  <div class="sec-eyebrow rise">{c.eyebrow}</div>
+  <h2 class="rise" set:html={c.titleHtml} />
+  <p class="sec-sub rise">{c.sub}</p>
+  <div class="cta-row rise">
+    <a class="btn btn-gold" href={`mailto:${site.email}`}>
+      {c.email}
+    </a>
+    <a
+      class="btn btn-ghost"
+      href={site.linkedin}
+      target="_blank"
+      rel="noopener"
+    >
+      {c.linkedin}
+    </a>
+    <a
+      class="btn btn-ghost"
+      href={site.whatsapp}
+      target="_blank"
+      rel="noopener"
+    >
+      {c.whatsapp}
+    </a>
+  </div>
+</section>
+
+<style is:global>
+  /* Global, not scoped: selectors and specificity match production. */
+  .contact {
+    text-align: left;
+  }
+  /* Compound selector so this beats .wrap's padding regardless of
+     stylesheet order (production relied on source order). */
+  .contact.wrap {
+    padding-bottom: 80px;
+  }
+  .contact h2 {
+    max-width: 820px;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 38px;
+  }
+</style>

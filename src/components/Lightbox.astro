@@ -1,0 +1,180 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<div
+  class="lb"
+  id="lb"
+  role="dialog"
+  aria-modal="true"
+  aria-label={t.a11y.lightbox}
+>
+  <button
+    class="lb-close"
+    id="lbClose"
+    type="button"
+    aria-label={t.a11y.lightboxClose}
+  >
+    ×
+  </button>
+  <button
+    class="lb-arrow lb-prev"
+    id="lbPrev"
+    type="button"
+    aria-label={t.a11y.lightboxPrev}
+  >
+    ←
+  </button>
+  <button
+    class="lb-arrow lb-next"
+    id="lbNext"
+    type="button"
+    aria-label={t.a11y.lightboxNext}
+  >
+    →
+  </button>
+  <div class="lb-inner">
+    <img id="lbImg" alt="" />
+    <div class="lb-cap" id="lbCap"></div>
+  </div>
+</div>
+
+<script>
+  import { initLightbox } from "../scripts/lightbox";
+  initLightbox();
+</script>
+
+<style is:global>
+  /* Global, not scoped: the caption is built at runtime by lightbox.ts. */
+  .lb {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background: rgb(8 11 14 / 0.9);
+    backdrop-filter: blur(8px);
+  }
+  /* Older Safari only understands the prefixed property; see Nav.astro. */
+  @supports (-webkit-backdrop-filter: none) {
+    .lb {
+      -webkit-backdrop-filter: blur(8px);
+    }
+  }
+  .lb.open {
+    display: flex;
+    animation: fade 0.3s ease;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .lb-inner {
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .lb img {
+    max-width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    box-shadow: 0 40px 100px rgb(0 0 0 / 0.6);
+    display: block;
+  }
+  .lb-cap {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--cream-dim);
+    text-align: center;
+  }
+  .lb-cap span {
+    color: var(--muted);
+  }
+  /* Production buttons kept the browser's default font; global.css sets
+     buttons to inherit, so revert to the user-agent value first. */
+  .lb-close {
+    font: revert;
+    position: absolute;
+    top: 22px;
+    right: 26px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgb(255 255 255 / 0.04);
+    color: var(--cream);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      border-color 0.25s,
+      color 0.25s;
+  }
+  .lb-close:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .lb-arrow {
+    font: revert;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgb(255 255 255 / 0.04);
+    color: var(--cream-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    transition:
+      border-color 0.25s,
+      color 0.25s;
+  }
+  .lb-arrow:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+  .lb-prev {
+    left: 22px;
+  }
+  .lb-next {
+    right: 22px;
+  }
+  @media (max-width: 640px) {
+    .lb {
+      padding: 18px;
+    }
+    .lb-arrow {
+      width: 38px;
+      height: 38px;
+    }
+    .lb-prev {
+      left: 8px;
+    }
+    .lb-next {
+      right: 8px;
+    }
+  }
+</style>

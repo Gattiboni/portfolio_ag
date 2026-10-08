@@ -4,16 +4,20 @@ import { site, type Locale } from "../config/site";
 import "../styles/fonts.css";
 import "../styles/tokens.css";
 import "../styles/global.css";
+import "../styles/primitives.css";
 
 interface Props {
   title: string;
   description: string;
+  ogTitle: string;
+  ogDescription: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogTitle, ogDescription } = Astro.props;
 
 // BCP 47 tags for <html lang> and hreflang; route locales stay short ("pt").
 const langTag: Record<Locale, string> = { en: "en", pt: "pt-BR" };
+const ogLocale: Record<Locale, string> = { en: "en_US", pt: "pt_BR" };
 
 const locale = (Astro.currentLocale ?? site.defaultLocale) as Locale;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -24,6 +28,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Page-specific head content that must run before first paint. -->
+    <slot name="head" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -39,7 +45,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       hreflang="x-default"
       href={getAbsoluteLocaleUrl(site.defaultLocale)}
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
     <meta name="generator" content={Astro.generator} />
+    <!-- Without JavaScript nothing adds .in, so reveals stay visible. The
+         bundled stylesheet is linked after this, hence "html .rise" to win. -->
+    <noscript>
+      <style is:inline>
+        html .rise {
+          opacity: 1;
+          transform: none;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <slot />

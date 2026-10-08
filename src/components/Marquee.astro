@@ -1,0 +1,53 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+// The list is rendered twice so the -50% loop is seamless.
+const loop = [...t.marquee.items, ...t.marquee.items];
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {loop.map((item) => (
+      <span>{item}</span>
+    ))}
+  </div>
+</div>
+
+<style is:global>
+  /* Global, not scoped: selectors and specificity match production. */
+  .marquee {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 52px;
+    width: max-content;
+    animation: scroll 36s linear infinite;
+  }
+  .marquee span {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .marquee span::after {
+    content: "·";
+    margin-left: 52px;
+    color: var(--gold);
+  }
+  @keyframes scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

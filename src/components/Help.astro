@@ -1,0 +1,30 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+const h = t.help;
+// Staggered reveal, as in production.
+const delay = (i: number) =>
+  i === 0 ? undefined : `transition-delay:${(i * 0.07).toFixed(2)}s`;
+---
+
+<section class="wrap" id="ajudo">
+  <div class="sec-head">
+    <div class="sec-eyebrow rise">{h.eyebrow}</div>
+    <h2 class="rise" set:html={h.titleHtml} />
+    <p class="sec-sub rise">{h.sub}</p>
+  </div>
+  <div class="grid">
+    {h.items.map((item, i) => (
+      <div class="card rise" style={delay(i)}>
+        <span class="num">{String(i + 1).padStart(2, "0")}</span>
+        <h3>{item.title}</h3>
+        <p>{item.text}</p>
+      </div>
+    ))}
+  </div>
+</section>

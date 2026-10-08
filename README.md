@@ -6,9 +6,12 @@ production.
 
 **Status: rebuild in progress.** The site currently online is the previous
 version, a single hand-uploaded HTML file. This repository holds its
-replacement. So far it contains the foundation only: tooling, design tokens,
-fonts, locale routing and one placeholder page per language. Nothing here is
-deployed to the domain yet. The order of work is in
+replacement. That site has now been ported here with parity: same content, same
+look, measured against production at three widths in both languages, with a
+short written list of intended differences (D015). A preview of this repository
+is deployed at [portfolio-ag-ten.vercel.app](https://portfolio-ag-ten.vercel.app).
+The domain still points at the previous site and moves at launch. What comes
+next (hero video, motion, a deep-dive page) is in
 [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Why the repository is public
@@ -80,10 +83,14 @@ warnings.
 ```
 portfolio_ag/
 ├── src/
+│   ├── components/           # One per section, composed by HomePage
 │   ├── config/site.ts        # Contact details, links, locales. One place.
-│   ├── layouts/              # BaseLayout: lang, canonical, hreflang
+│   ├── i18n/                 # en.ts sets the shape, pt.ts must match it
+│   ├── layouts/              # BaseLayout: lang, canonical, hreflang, meta
 │   ├── pages/                # index.astro (en), pt/index.astro (pt)
-│   └── styles/               # tokens.css, fonts.css, global.css
+│   ├── scripts/              # One module per behaviour, strict TypeScript
+│   └── styles/               # tokens, fonts, global, shared primitives
+├── public/img/               # Images, served as they are
 ├── docs/
 │   ├── DECISION_LOG.md       # Decisions with context and alternatives
 │   ├── CHANGELOG.md          # What happened, newest on top

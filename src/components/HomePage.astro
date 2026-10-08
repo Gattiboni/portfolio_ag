@@ -1,0 +1,51 @@
+---
+// The home page, composed once and rendered by both locale routes.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import type { Locale } from "../config/site";
+import { getDictionary } from "../i18n";
+import Background from "./Background.astro";
+import Nav from "./Nav.astro";
+import Hero from "./Hero.astro";
+import About from "./About.astro";
+import Help from "./Help.astro";
+import Manifesto from "./Manifesto.astro";
+import Case from "./Case.astro";
+import Projects from "./Projects.astro";
+import Marquee from "./Marquee.astro";
+import Contact from "./Contact.astro";
+import Footer from "./Footer.astro";
+import Lightbox from "./Lightbox.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDictionary(locale);
+---
+
+<BaseLayout
+  title={t.meta.title}
+  description={t.meta.description}
+  ogTitle={t.meta.ogTitle}
+  ogDescription={t.meta.ogDescription}
+>
+  <slot name="head" slot="head" />
+  <Background />
+  <Nav t={t} locale={locale} />
+  <Hero t={t} />
+  <About t={t} />
+  <Help t={t} />
+  <Manifesto t={t} />
+  <Case t={t} />
+  <Projects t={t} />
+  <Marquee t={t} />
+  <Contact t={t} />
+  <Footer t={t} />
+  <Lightbox t={t} />
+</BaseLayout>
+
+<script>
+  import { initReveal } from "../scripts/reveal";
+  initReveal();
+</script>

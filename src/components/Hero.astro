@@ -1,0 +1,116 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<header class="hero wrap" id="top">
+  <div class="eyebrow rise">{t.hero.eyebrow}</div>
+  <h1 class="rise" style="transition-delay:.08s" set:html={t.hero.titleHtml} />
+  <p
+    class="hero-sub rise"
+    style="transition-delay:.16s"
+    set:html={t.hero.subHtml}
+  />
+  <a class="scroll-cue rise" style="transition-delay:.26s" href="#sobre">
+    <span class="arrow">↓</span> {t.hero.cue}
+  </a>
+</header>
+
+<style is:global>
+  /* Global, not scoped: selectors and specificity match production, and the
+     dictionary's inline markup (set:html) carries no scope attribute. */
+  .hero {
+    min-height: 92svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Compound selector so these beat .wrap's padding regardless of
+     stylesheet order (production relied on source order). */
+  .hero.wrap {
+    padding-top: 130px;
+    padding-bottom: 60px;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .eyebrow::before {
+    content: "";
+    display: block;
+    width: 34px;
+    height: 1px;
+    background: var(--teal);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+    letter-spacing: -0.015em;
+    max-width: 900px;
+  }
+  h1 .thin {
+    font-weight: 300;
+    color: var(--cream-dim);
+  }
+  h1 .gold-i {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+  }
+  .hero-sub {
+    margin-top: 30px;
+    max-width: 600px;
+    color: var(--cream-dim);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+  .hero-sub strong {
+    color: var(--cream);
+    font-weight: 500;
+  }
+  /* Production also declared "transition: color .25s" here, but .rise came
+     later in the file and replaced it; omitted to keep the same result. */
+  .scroll-cue {
+    margin-top: 56px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .scroll-cue:hover {
+    color: var(--gold);
+  }
+  .scroll-cue .arrow {
+    display: inline-block;
+    animation: nudge 2.2s ease-in-out infinite;
+  }
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
+  }
+</style>

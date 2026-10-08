@@ -1,0 +1,44 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+const m = t.manifesto;
+---
+
+<section class="wrap manifesto" id="manifesto">
+  <div class="sec-eyebrow rise">{m.eyebrow}</div>
+  <p class="rise" set:html={m.p1Html} />
+  <p class="rise" set:html={m.p2Html} />
+</section>
+
+<style is:global>
+  /* Global, not scoped: the dictionary's inline markup (set:html) carries no
+     scope attribute. */
+  .manifesto p {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.3rem, 2.6vw, 1.85rem);
+    line-height: 1.5;
+    max-width: 840px;
+    color: var(--cream-dim);
+  }
+  .manifesto p + p {
+    margin-top: 26px;
+  }
+  .manifesto strong {
+    color: var(--cream);
+    font-weight: 500;
+  }
+  .manifesto .g {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .manifesto .t {
+    color: var(--teal);
+  }
+</style>

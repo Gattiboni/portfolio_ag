@@ -15,6 +15,7 @@
   --teal-soft: rgb(63 163 150 / 0.12);
   --gold: #d4a643;
   --gold-soft: rgb(212 166 67 / 0.12);
+  --on-gold: #161005; /* text on gold fills: primary button, chat demo */
   --bronze: #a66b3f;
   --silver: #9fa8ad;
 

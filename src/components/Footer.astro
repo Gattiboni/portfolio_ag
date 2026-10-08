@@ -1,0 +1,50 @@
+---
+import { site } from "../config/site";
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<footer>
+  <div class="wrap foot">
+    <span>
+      © <span id="yr"></span> {site.name} · <span>{t.footer.location}</span>
+    </span>
+    <a href="#top">{t.footer.backToTop}</a>
+  </div>
+</footer>
+
+<script>
+  import { initFooterYear } from "../scripts/footer-year";
+  initFooterYear();
+</script>
+
+<style is:global>
+  /* Global, not scoped: selectors and specificity match production. */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 26px 0 40px;
+  }
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .foot,
+  .foot a {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+  .foot a:hover {
+    color: var(--gold);
+  }
+</style>

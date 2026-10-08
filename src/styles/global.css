@@ -11,22 +11,26 @@
 
 * {
   margin: 0;
+  padding: 0;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
+/* Production defaults: headings inherit cream; body copy sets cream-dim per
+   element. No font smoothing override, as in production. */
 body {
   min-height: 100vh;
   background: var(--bg);
-  color: var(--cream-dim);
+  color: var(--cream);
   font-family: var(--font-body);
   font-size: var(--fs-body);
   font-weight: 300;
   line-height: var(--lh-body);
-  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 img,
@@ -46,7 +50,7 @@ select {
 
 ::selection {
   background: var(--gold);
-  color: var(--bg);
+  color: #141008;
 }
 
 /* Visible focus for keyboard users only. */

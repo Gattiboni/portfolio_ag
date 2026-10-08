@@ -1,7 +1,7 @@
 # Visual identity · portfolio_ag
 
-Tokens as they exist in the production site on 2026-10-08, read from its CSS.
-This is the baseline the parity port must reproduce. Changes to it are
+Tokens as they existed in the previous production site on 2026-10-08, read from
+its CSS, and as reproduced by the parity port (D015). Changes to it are
 decisions and go in the decision log.
 
 Single dark theme by choice.
@@ -21,6 +21,7 @@ Single dark theme by choice.
 | `--teal-soft` | `rgba(63,163,150,.12)` | Teal tint |
 | `--gold` | `#D4A643` | Emphasis, primary action, italic accents |
 | `--gold-soft` | `rgba(212,166,67,.12)` | Gold tint |
+| `--on-gold` | `#161005` | Text and icons on a gold surface |
 | `--bronze` | `#A66B3F` | Medallion: raw layer |
 | `--silver` | `#9FA8AD` | Medallion: clean layer |
 
@@ -31,8 +32,10 @@ The deep-dive graph adds one hue per zone: `#3FA396`, `#4E9BC7`, `#D4A643`,
 `#E9A0B0`, `#59A14F`, `#B07AA1`, `#A66B3F`, `#9FA8AD`.
 
 **Removed by D005:** the red and grey tokens and the two extra typefaces that
-styled the chat demo after a third party's brand. The demo is restyled with the
-tokens above.
+styled the chat demo after a third party's brand. The demo now uses the tokens
+above: card on `--panel`, header and bot bubble on `--panel-2`, message area on
+`--bg`, avatar, user bubble and send button in `--gold` with `--on-gold` text,
+status dot in `--teal`, all text in Sora.
 
 ## Type
 
@@ -52,8 +55,11 @@ Scale in production: `h1` `clamp(2.2rem, 5.6vw, 4.3rem)` at line-height 1.08;
 
 - Radius: 14 px on cards and panels, 999 px on buttons and chips
 - Content width: 1080 px, 28 px side padding
-- Section rhythm: 110 px top and bottom
-- Breakpoints in use: 560, 720, 760, 820, 860 px (to be consolidated in the port)
+- Section rhythm: 110 px top and bottom on the case study section only. The
+  other sections carry no vertical padding of their own: in the previous CSS
+  the container rule overrode the section rule, and the port reproduces what
+  was rendered, not what was intended
+- Breakpoints in use: 560, 640, 760, 820, 860 px (not consolidated yet)
 
 ## Motion in production
 

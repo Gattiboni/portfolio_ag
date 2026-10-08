@@ -1,0 +1,67 @@
+---
+// Fixed ambient layers behind the page: a faded grid and two blurred glows.
+---
+
+<div class="bg-grid"></div>
+<div class="glow glow-teal" id="gTeal"></div>
+<div class="glow glow-gold" id="gGold"></div>
+
+<script>
+  import { initPointerEffects } from "../scripts/pointer-effects";
+  initPointerEffects();
+</script>
+
+<style is:global>
+  /* Global, not scoped: selectors and specificity match production. */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgb(242 237 227 / 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(242 237 227 / 0.022) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(
+      ellipse 90% 70% at 50% 0%,
+      #000 30%,
+      transparent 78%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 90% 70% at 50% 0%,
+      #000 30%,
+      transparent 78%
+    );
+  }
+  .glow {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.42;
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .glow-teal {
+    width: 560px;
+    height: 560px;
+    background: radial-gradient(
+      circle,
+      rgb(63 163 150 / 0.16),
+      transparent 65%
+    );
+    top: -160px;
+    left: -120px;
+  }
+  .glow-gold {
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(
+      circle,
+      rgb(212 166 67 / 0.11),
+      transparent 65%
+    );
+    top: 30vh;
+    right: -160px;
+  }
+</style>
