@@ -6,13 +6,13 @@ production.
 
 **Status: rebuild in progress.** The site currently online is the previous
 version, a single hand-uploaded HTML file. This repository holds its
-replacement. That site has now been ported here with parity: same content, same
-look, measured against production at three widths in both languages, with a
-short written list of intended differences (D015). A preview of this repository
-is deployed at [portfolio-ag-ten.vercel.app](https://portfolio-ag-ten.vercel.app).
-The domain still points at the previous site and moves at launch. What comes
-next (hero video, motion, a deep-dive page) is in
-[docs/ROADMAP.md](docs/ROADMAP.md).
+replacement. That site was first ported here with parity, measured against
+production at three widths in both languages (D015). On top of that base the
+hero now opens with a looping video that never blocks the first paint (D018). A
+preview of this repository is deployed at
+[portfolio-ag-ten.vercel.app](https://portfolio-ag-ten.vercel.app). The domain
+still points at the previous site and moves at launch. What comes next (motion,
+a deep-dive page, copy) is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Why the repository is public
 
@@ -90,7 +90,9 @@ portfolio_ag/
 │   ├── pages/                # index.astro (en), pt/index.astro (pt)
 │   ├── scripts/              # One module per behaviour, strict TypeScript
 │   └── styles/               # tokens, fonts, global, shared primitives
-├── public/img/               # Images, served as they are
+├── public/
+│   ├── img/                  # Images and hero posters, served as they are
+│   └── video/                # Hero loop, 1080p and 720p, WebM and MP4
 ├── docs/
 │   ├── DECISION_LOG.md       # Decisions with context and alternatives
 │   ├── CHANGELOG.md          # What happened, newest on top
@@ -119,10 +121,18 @@ code agent implements and never commits. Two gates sit between them:
 Each phase lands as one commit, with the changelog and the decision log closed
 in the same commit.
 
+## Credits
+
+Hero footage: "Close-up of Lit Match Burning in Dark" by Scott Precious, from
+[Pexels](https://www.pexels.com/video/close-up-of-lit-match-burning-in-dark-35888102/),
+used under the Pexels licence. Cut, denoised, black level adjusted and
+re-encoded for this site.
+
 ## Licence
 
-The code is under the [MIT licence](LICENSE). The content is not: copy, images
-and video are all rights reserved.
+The code is under the [MIT licence](LICENSE). The content is not: copy and
+images are all rights reserved, and the hero footage belongs to its author
+under the licence named above.
 
 ---
 

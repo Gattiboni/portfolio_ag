@@ -38,9 +38,9 @@ export const en = {
     contact: "Contact",
   },
   hero: {
-    eyebrow: "Alan Gattiboni · Data & AI · São Paulo, Brazil",
-    titleHtml:
-      'A.I. has the potential to give us back<br><span class="thin">what is most human:</span> <span class="gold-i">our time.</span>',
+    role: "Data & AI Solutions Architect · São Paulo",
+    phraseHtml:
+      'A.I. has the potential to give us back <span class="thin">what is most human:</span> <span class="gold-i">our time.</span>',
     subHtml:
       "I build data and AI platforms that do exactly that — <strong>they pull decisions out of the dark and give time back</strong> to the people running the business. From diagnosis to production.",
     cue: "here’s the story",

@@ -6,6 +6,7 @@ import { getDictionary } from "../i18n";
 import Background from "./Background.astro";
 import Nav from "./Nav.astro";
 import Hero from "./Hero.astro";
+import HeroLead from "./HeroLead.astro";
 import About from "./About.astro";
 import Help from "./Help.astro";
 import Manifesto from "./Manifesto.astro";
@@ -34,6 +35,7 @@ const t = getDictionary(locale);
   <Background />
   <Nav t={t} locale={locale} />
   <Hero t={t} />
+  <HeroLead t={t} />
   <About t={t} />
   <Help t={t} />
   <Manifesto t={t} />

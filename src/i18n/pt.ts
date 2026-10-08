@@ -35,9 +35,9 @@ export const pt: Dictionary = {
     contact: "Contato",
   },
   hero: {
-    eyebrow: "Alan Gattiboni · Dados & IA · São Paulo",
-    titleHtml:
-      'A I.A. tem o potencial de nos devolver<br><span class="thin">o que há de mais humano:</span> <span class="gold-i">o nosso tempo.</span>',
+    role: "Arquiteto de Soluções de Dados e IA · São Paulo",
+    phraseHtml:
+      'A I.A. tem o potencial de nos devolver <span class="thin">o que há de mais humano:</span> <span class="gold-i">o nosso tempo.</span>',
     subHtml:
       "Eu construo plataformas de dados e IA que fazem exatamente isso — <strong>tiram decisões do escuro e devolvem tempo</strong> para quem opera o negócio. Do diagnóstico à produção.",
     cue: "conheça a história",

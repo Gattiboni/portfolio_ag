@@ -8,35 +8,123 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-<header class="hero wrap" id="top">
-  <div class="eyebrow rise">{t.hero.eyebrow}</div>
-  <h1 class="rise" style="transition-delay:.08s" set:html={t.hero.titleHtml} />
-  <p
-    class="hero-sub rise"
-    style="transition-delay:.16s"
-    set:html={t.hero.subHtml}
-  />
-  <a class="scroll-cue rise" style="transition-delay:.26s" href="#sobre">
+<!-- Full-screen hero: a media layer (poster, then video) under a text layer.
+     The <video> ships without a source; src/scripts/hero-video.ts attaches
+     one after the page has loaded. -->
+<header class="hero" id="top">
+  <div class="hero-media">
+    <picture>
+      <source media="(max-width: 820px)" srcset="/img/hero-poster-720.webp" />
+      <img
+        class="hero-poster"
+        src="/img/hero-poster.webp"
+        alt=""
+        width="1920"
+        height="1080"
+        fetchpriority="high"
+      />
+    </picture>
+    <video
+      class="hero-video"
+      muted
+      loop
+      playsinline
+      preload="none"
+      tabindex="-1"
+      aria-hidden="true"
+      data-hero-video
+    ></video>
+  </div>
+
+  <div class="hero-in">
+    <div class="hero-copy">
+      <div class="hero-role">{t.hero.role}</div>
+      <!-- Same markup as the bar's brand: one source for the name. -->
+      <h1 class="hero-name" set:html={t.nav.brandHtml} />
+      <p class="hero-phrase" set:html={t.hero.phraseHtml} />
+    </div>
+  </div>
+
+  <a class="hero-cue" href="#sobre">
     <span class="arrow">↓</span> {t.hero.cue}
   </a>
 </header>
 
+<script>
+  import { initHeroVideo } from "../scripts/hero-video";
+  initHeroVideo();
+</script>
+
 <style is:global>
-  /* Global, not scoped: selectors and specificity match production, and the
-     dictionary's inline markup (set:html) carries no scope attribute. */
+  /* Global, not scoped: the dictionary's inline markup (set:html) carries no
+     scope attribute. Values come from the approved mock, variant B. */
+
+  /* Own background and stacking context: the fixed grid and glows stay
+     behind the hero and show again below it. The base of the background
+     fades out so the hero's lower edge never cuts the glows in a straight
+     line while it scrolls away. The media mask is already transparent there. */
   .hero {
-    min-height: 92svh;
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    background: linear-gradient(
+      180deg,
+      var(--bg) calc(100% - 160px),
+      rgb(17 22 27 / 0)
+    );
+  }
+
+  /* Opacity, transform, mask and blend all live on this layer. The blend has
+     to sit here: on the <video> it has no effect, because this layer isolates
+     its children. The footage is on pure black, so "screen" lets the page
+     colour show through it. */
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    transform-origin: 68% 42%;
+    mix-blend-mode: screen;
+    mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
+    -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
+  }
+  /* Poster and video share the exact same box, so nothing shifts when the
+     video takes over. */
+  .hero-poster,
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 68% 42%;
+  }
+  .hero-video {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .hero-video.is-playing {
+    opacity: 1;
+  }
+
+  .hero-in {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-  /* Compound selector so these beat .wrap's padding regardless of
-     stylesheet order (production relied on source order). */
-  .hero.wrap {
-    padding-top: 130px;
-    padding-bottom: 60px;
+  .hero-copy {
+    max-width: min(56%, 620px);
   }
-  .eyebrow {
+
+  .hero-role {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     letter-spacing: 0.14em;
@@ -45,72 +133,268 @@ const { t } = Astro.props;
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 28px;
+    margin-bottom: 26px;
   }
-  .eyebrow::before {
+  .hero-role::before {
     content: "";
-    display: block;
-    width: 34px;
+    flex: 0 0 34px;
     height: 1px;
     background: var(--teal);
   }
-  h1 {
+
+  .hero-name {
     font-family: var(--font-display);
     font-weight: 500;
-    font-size: var(--fs-h1);
-    line-height: var(--lh-h1);
-    letter-spacing: -0.015em;
-    max-width: 900px;
+    font-size: clamp(3rem, 8.2vw, 6.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
   }
-  h1 .thin {
-    font-weight: 300;
-    color: var(--cream-dim);
-  }
-  h1 .gold-i {
+  .hero-name em {
+    display: block;
     font-style: italic;
     font-weight: 400;
     color: var(--gold);
   }
-  .hero-sub {
+
+  /* One running line: .thin inherits the paragraph; only .gold-i stands out. */
+  .hero-phrase {
     margin-top: 30px;
-    max-width: 600px;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.1rem, 1.9vw, 1.5rem);
+    line-height: 1.4;
     color: var(--cream-dim);
-    font-size: 1.05rem;
-    line-height: 1.7;
+    max-width: 30ch;
   }
-  .hero-sub strong {
-    color: var(--cream);
-    font-weight: 500;
+  .hero-phrase .gold-i {
+    font-style: italic;
+    color: var(--gold);
   }
-  /* Production also declared "transition: color .25s" here, but .rise came
-     later in the file and replaced it; omitted to keep the same result. */
-  .scroll-cue {
-    margin-top: 56px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+
+  .hero-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    z-index: 2;
+    transform: translateX(-50%);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
     text-decoration: none;
-    align-self: flex-start;
+    white-space: nowrap;
   }
-  .scroll-cue:hover {
+  .hero-cue:hover {
     color: var(--gold);
   }
-  .scroll-cue .arrow {
+  .hero-cue .arrow {
     display: inline-block;
     animation: nudge 2.2s ease-in-out infinite;
   }
   @keyframes nudge {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
     50% {
       transform: translateY(5px);
+    }
+  }
+
+  /* Lettering comes in on load, staggered. CSS only: no script, no scroll. */
+  .hero-copy > * {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: hero-rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+  .hero-copy > :nth-child(1) {
+    animation-delay: 0.25s;
+  }
+  .hero-copy > :nth-child(2) {
+    animation-delay: 0.5s;
+  }
+  .hero-copy > :nth-child(3) {
+    animation-delay: 0.85s;
+  }
+  @keyframes hero-rise {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Phones: flame on top, words underneath. */
+  @media (max-width: 820px) {
+    .hero-media {
+      transform-origin: 50% 30%;
+      mask-image: linear-gradient(180deg, #000 54%, transparent 82%);
+      -webkit-mask-image: linear-gradient(180deg, #000 54%, transparent 82%);
+    }
+    .hero-poster,
+    .hero-video {
+      object-position: 68% 30%;
+    }
+    .hero-in {
+      justify-content: flex-end;
+      padding-bottom: 76px;
+    }
+    .hero-copy {
+      position: relative;
+      max-width: 100%;
+    }
+    /* Contrast layer: here the role line can land on the match head (1:1 on
+       some frames). The page colour is solid from the top of the text down
+       and eases out over the 140px above it, so every line keeps AA on every
+       frame without a visible band across the flame. Inside .hero-in's
+       stacking context: above the media, below the words, and it fades with
+       them on scroll. */
+    .hero-copy::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: -140px calc(-1 * var(--content-padding)) 0;
+      background: linear-gradient(
+        180deg,
+        rgb(17 22 27 / 0),
+        rgb(17 22 27 / 0.15) 35px,
+        rgb(17 22 27 / 0.45) 70px,
+        rgb(17 22 27 / 0.8) 105px,
+        var(--bg) 140px
+      );
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-copy > * {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .hero-cue .arrow {
+      animation: none;
+    }
+  }
+
+  /* Scroll-driven fade: as the hero leaves, the media fades and grows a
+     little, the text rises and fades, and the bar fills in. Progress runs
+     from the top of the page to 80% of the hero's height, as in the mock.
+     Browsers without support keep a static hero and the bar as it was.
+     animation-timeline comes after the shorthand, which resets it. */
+  @supports (animation-timeline: scroll()) {
+    .hero-media,
+    .hero-in,
+    .hero-cue,
+    nav {
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 calc(max(100svh, 560px) * 0.8);
+    }
+    .hero-media {
+      animation-name: hero-media-out;
+    }
+    .hero-in {
+      animation-name: hero-text-out;
+    }
+    .hero-cue {
+      animation-name: hero-cue-out;
+    }
+    /* The bar's own rule lives here so it only applies on pages with a hero. */
+    nav {
+      animation-name: hero-nav-in;
+    }
+
+    /* Reduced motion: fades only, no scale, no shift. The global reduced
+       motion rule forces a 0.01ms duration on everything, which would break
+       a scroll-linked animation; the class selectors outrank its "*". */
+    @media (prefers-reduced-motion: reduce) {
+      .hero-media,
+      .hero-in,
+      .hero-cue,
+      nav {
+        animation-duration: auto !important;
+      }
+      .hero-media {
+        animation-name: hero-media-fade;
+      }
+      .hero-in {
+        animation-name: hero-text-fade;
+      }
+    }
+  }
+  /* Separate block: an unknown :popover-open would void a whole selector
+     list. With the mobile menu open the bar matches the panel, whatever the
+     scroll position. */
+  @supports (animation-timeline: scroll()) {
+    nav:has(+ .nav-menu:popover-open) {
+      animation: none;
+    }
+  }
+
+  /* Opacity reaches zero before the end of the range, as in the mock:
+     media at 1/1.15 of it, text at 1/1.4, the cue at 1/4. */
+  @keyframes hero-media-out {
+    0% {
+      opacity: 1;
+      transform: none;
+    }
+    86.96% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.07);
+    }
+  }
+  @keyframes hero-media-fade {
+    0% {
+      opacity: 1;
+    }
+    86.96%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes hero-text-out {
+    0% {
+      opacity: 1;
+      transform: none;
+    }
+    71.43% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-40px);
+    }
+  }
+  @keyframes hero-text-fade {
+    0% {
+      opacity: 1;
+    }
+    71.43%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes hero-cue-out {
+    0% {
+      opacity: 1;
+    }
+    25%,
+    100% {
+      opacity: 0;
+    }
+  }
+  /* Ends on the bar's resting values from Nav.astro. */
+  @keyframes hero-nav-in {
+    from {
+      background-color: rgb(17 22 27 / 0.2);
+      backdrop-filter: blur(0);
+      border-bottom-color: rgb(242 237 227 / 0);
+    }
+    to {
+      background-color: rgb(17 22 27 / 0.74);
+      backdrop-filter: blur(14px);
+      border-bottom-color: var(--line);
     }
   }
 </style>

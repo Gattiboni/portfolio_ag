@@ -384,6 +384,70 @@ would inherit a defect on purpose.
 
 ---
 
+## D018 — 2026-10-08 · Hero: the name leads, over a looping video that never blocks the page
+
+**Context.** Feedback on the first portfolio was that the burning match gave it
+warmth the second version lost. The licensed clip was ready (D006). Two layouts
+were built as a navigable mock with the real footage and fonts: the phrase as
+headline with the name in a small line, or the name as headline with a role
+line above and the phrase below.
+
+**Alternatives.** Layout: (a) phrase leads, (b) name leads. Scroll effect:
+(c) a JavaScript scroll listener, (d) CSS scroll-driven animation with a static
+fallback. Loading: (e) `autoplay` with sources in the markup, (f) poster first,
+sources attached by script after `load`.
+
+**Decision.** (b), (d) and (f). The video is cut from the original file, 6
+seconds, loop seam crossfaded, background crushed to pure black so that
+`mix-blend-mode: screen` lets the page colour show through instead of a black
+box. The fingers holding the match stay in frame: "the human part nobody
+notices when they talk about AI". The server sends a real poster image and a
+`<video>` with no source. A script attaches the video only after `load`, 720p
+at 820 px and below, 1080p above, and not at all under reduced motion, data
+saver or without JavaScript. Playback pauses when the hero leaves the screen.
+
+**Rationale.** (b) answers who and what in the first three seconds. (d) keeps
+the main thread free and costs nothing where unsupported: Firefox stable does
+not ship `animation-timeline` yet, so there the hero simply scrolls away. That
+is accepted. (f) means the first paint never waits for video. The largest file
+is 114 KB, so weight stopped being a constraint.
+
+**Owner.** Alan chose the layout on the mock; assistant proposed the
+architecture. **Status.** Closed. The role line is a placeholder until the
+title is decided in Phase 7.
+
+---
+
+## D019 — 2026-10-08 · Images enter the repository only as copies made on the author's machine
+
+**Context.** In Phase 3 the five images of the previous site were written to
+the project folder through the assistant's file bridge. That bridge signs every
+image it delivers with a C2PA Content Credentials manifest stating that the
+assistant provided the file and may have modified it. The manifest added 5,770
+bytes to each PNG. The pixel data was untouched, but the files were no longer
+the originals, and screenshots of the author's own products carried an
+AI-provenance statement that did not describe them. The changelog entry that
+called them "byte-identical to the previous site" was wrong: they were
+identical to each other, which is what was actually compared.
+
+**Alternatives.** (a) Leave the manifests. (b) Restore the originals and change
+how images travel.
+
+**Decision.** (b). The five PNGs were restored from the author's own copies,
+verified by hash against the files downloaded from the previous host. From now
+on, images and video reach `public/` only by a copy or an encode executed on
+the author's machine. The assistant may write text through the bridge; it does
+not deliver binaries that way.
+
+**Rationale.** A check that compares two copies of the same altered file proves
+nothing about the original. The comparison has to reach back to the source of
+truth. The commit that carried the signed files stays in history; nothing in it
+is sensitive.
+
+**Owner.** Assistant, who caused it and found it. **Status.** Closed.
+
+---
+
 ## Open
 
 - **Motion budget.** How many high-impact animated moments the site allows.

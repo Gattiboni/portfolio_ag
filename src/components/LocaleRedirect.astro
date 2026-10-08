@@ -2,8 +2,10 @@
 // First-visit language detection for "/" only (D004). Runs inline in <head>
 // before first paint. A stored "pt" choice, or no stored choice and a browser
 // language starting with "pt", sends the visitor to the Portuguese page;
-// anything else stays. Keeps the anchor and replaces the history entry so
-// Back does not loop. /pt/ never redirects: an explicit URL wins.
+// anything else stays. Keeps the query string and the anchor, and replaces
+// the history entry so Back does not loop. /pt/ never redirects: an explicit
+// URL wins. A "lang=en" query parameter is an explicit choice too: the switch
+// adds it when it cannot store the choice, so it wins over everything here.
 // Plain inline script, so it behaves the same on any static host.
 import { getRelativeLocaleUrl } from "astro:i18n";
 
@@ -11,6 +13,7 @@ const target = getRelativeLocaleUrl("pt");
 ---
 
 <script is:inline define:vars={{ target }}>
+  const explicitEn = new URLSearchParams(location.search).get("lang") === "en";
   let saved = null;
   try {
     saved = localStorage.getItem("lang");
@@ -18,7 +21,7 @@ const target = getRelativeLocaleUrl("pt");
     // Storage unavailable: fall back to the browser language.
   }
   const browserPt = (navigator.language || "").toLowerCase().startsWith("pt");
-  if (saved === "pt" || (saved !== "en" && browserPt)) {
-    location.replace(target + location.hash);
+  if (!explicitEn && (saved === "pt" || (saved !== "en" && browserPt))) {
+    location.replace(target + location.search + location.hash);
   }
 </script>

@@ -41,13 +41,16 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 
 ## Phase 4 · Hero video
 
-- **⚑ How much text sits on the video**
-- [ ] Cut a 6 to 10 second seamless loop; MP4 (H.264) and WebM at 1080p and
-      720p, no audio track; poster image
-- [ ] Poster paints first, video loads after; `autoplay muted loop playsinline`
-- [ ] Fade tied to scroll; poster only under reduced motion or data saver
-- [ ] Contrast layer so the text passes AA over any frame
-- [ ] β: a real iPhone, simulated 4G, Lighthouse before and after
+- [x] Navigable mock with the real footage; layout chosen on it (D018)
+- [x] 6 second seamless loop; MP4 (H.264) and WebM at 1080p and 720p, no audio
+      track; poster image
+- [x] Poster paints first, video attaches after `load`
+- [x] Fade tied to scroll in CSS; poster only under reduced motion, data saver
+      or no JavaScript
+- [x] Contrast of at least 4.5:1 for hero text over every frame
+- [x] Two language defects from the parity port
+- [x] β: code agent, browser agent on a clean build, Alan's eye on desktop
+- [ ] β on a real phone and on Safari, before launch
 
 ## Phase 5 · Motion
 
@@ -99,11 +102,9 @@ Text is the visitor's choice, never the default.
 Listed by the code agent and deliberately not fixed in Phase 3 (D015). Each one
 has a phase.
 
-- [ ] Language switch with `localStorage` blocked and a Portuguese browser:
-      choosing English returns to `/pt/` (Phase 4, before more work lands on
-      the header)
-- [ ] The language redirect drops the query string, which would lose campaign
-      parameters (before analytics, Phase 8)
+- [x] Language switch with `localStorage` blocked and a Portuguese browser:
+      choosing English returned to `/pt/` (fixed in Phase 4)
+- [x] The language redirect dropped the query string (fixed in Phase 4)
 - [ ] Chat demo text renders at weight 300; the previous site showed 400 because
       its 300 never loaded (Phase 5)
 - [ ] Lightbox does not trap keyboard focus and does not cap image height
@@ -117,6 +118,23 @@ has a phase.
       (Phase 7)
 - [ ] English social description reuses the long meta description while
       Portuguese has a short line (Phase 7)
+
+## Found during the hero work
+
+- [ ] On phones the contrast layer greys the base of the flame. Try a smaller,
+      higher video instead of a scrim over it (Phase 5)
+- [ ] Largest contentful paint is the brand in the bar, at 2.3 to 2.7 s in a
+      clean lab run on slow 4G. Font preload and the built-in fonts option
+      (D012) are the levers (Phase 8)
+- [ ] One clean run in three showed a layout shift of 0.097; find the source
+      (Phase 8)
+- [ ] The static and the animated `backdrop-filter` on the bar may compete in
+      Safari; untested (with the phone β)
+- [ ] The five PNGs carry design-tool metadata, including account identifiers,
+      as they already do on the previous site. Strip it when the images are
+      replaced (Phase 7 or 8)
+- [ ] `favicon.ico` returns 404, the only console message (Phase 8, already
+      planned)
 
 ## Later
 

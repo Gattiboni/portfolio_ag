@@ -1,0 +1,33 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<!-- First block after the hero: the line that used to sit under the title. -->
+<div class="wrap hero-lead">
+  <p class="lead rise" set:html={t.hero.subHtml} />
+</div>
+
+<style is:global>
+  /* Global, not scoped: the dictionary's inline markup carries no scope
+     attribute. Compound selector so it beats .wrap's padding. */
+  .hero-lead.wrap {
+    padding-top: 40px;
+    padding-bottom: 60px;
+  }
+  .lead {
+    max-width: 640px;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--cream-dim);
+  }
+  .lead strong {
+    color: var(--cream);
+    font-weight: 500;
+  }
+</style>

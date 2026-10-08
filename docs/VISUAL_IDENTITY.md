@@ -51,6 +51,17 @@ third-party CDN.
 Scale in production: `h1` `clamp(2.2rem, 5.6vw, 4.3rem)` at line-height 1.08;
 `h2` `clamp(1.9rem, 4vw, 2.9rem)` at 1.12; body 1rem at 1.6.
 
+## Hero
+
+- A looping video of a burning match, flame at about two thirds of the width,
+  on pure black and blended into the page with `screen`
+- Name in Fraunces, `clamp(3rem, 8.2vw, 6.6rem)`, family name in gold italic on
+  its own line; role line in mono above; the phrase in Fraunces 300 below
+- At 820 px and below the flame sits on top and the words underneath
+- Lettering enters over the first second and a half; on scroll the media fades
+  and scales slightly, the words lift, and the bar goes from nearly transparent
+  to its usual background
+
 ## Shape and layout
 
 - Radius: 14 px on cards and panels, 999 px on buttons and chips
