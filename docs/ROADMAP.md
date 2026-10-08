@@ -70,19 +70,21 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 A second page that explains the main case in depth, generic and anonymised.
 Text is the visitor's choice, never the default.
 
-- **⚑ Scope, disclosure levels and whether the graph only draws declared relations**
-- [ ] The card of the main case expands into this page with a view transition
-      (effect E, D020)
-- [ ] Three levels: a graph with labels and no paragraphs; one plain line per
-      node on click; technical detail on request
-- [ ] Every figure checked against the project's own changelog and decision log
-      before it is published
-- [ ] Anonymisation pass (D005)
-- [ ] Content in data files, one per language, separate from the graph component
-- [ ] Graph usable by keyboard, with a list alternative for screen readers and
-      narrow screens
-- [ ] β: a non-technical reader follows the story with the first two levels; a
-      technical reader reaches the SQL guardrails in under three clicks
+- [x] Navigable mock; scope, levels, declared relations and the architecture at
+      the centre decided on it (D023)
+- [x] Every claim checked against the project's own changelog, decision log and
+      source files before publication; four corrected, two counts dropped (D024)
+- [x] Anonymisation pass (D005)
+- [x] Content in data files, one per language, separate from the graph and
+      validated at build. English written, not machine translated
+- [x] Static graph, panel with three levels, list with the same content,
+      reduced graph on phones
+- [x] Keyboard: eight tab stops at rest, focus follows the selection. Works
+      without JavaScript
+- [x] The card of the main case becomes the page header (effect E, D020)
+- [x] A highlighted item in the bar opens the page directly (D025)
+- [x] β: the SQL guardrails are two clicks from the start
+- [ ] The author rereads the English as a visitor, in the browser
 
 ## Phase 7 · Copy and positioning
 
@@ -155,6 +157,23 @@ has a phase.
       previous site (Phase 7, with the gallery decision)
 - [ ] The bars over the revenue figure carry no labels. Decide with the copy
       whether they need any (Phase 7)
+
+## Found during the deep dive
+
+- [ ] The home page still says "8 HR domains", a count dropped by D024
+      (Phase 7)
+- [ ] On the deep-dive page at 899 px and below the menu holds a single link,
+      back to the portfolio. Consistent with the home page, slightly silly;
+      revisit if it bothers
+- [ ] Section index on the deep-dive page: left out, undecided (open list)
+- [ ] On the first navigation from the card with a cold cache, headless Chrome
+      skipped the transition; the second and third animated. Check in a real
+      browser (with the phone β)
+- [ ] Anchor jumps on the deep-dive page are instant, not smooth: the page's
+      height changes while it loads and a smooth jump aimed at the old
+      position. One rule, on that page only
+- [ ] Firefox has no cross-document view transition: pages simply load.
+      Accepted, as with D018
 
 ## Later
 

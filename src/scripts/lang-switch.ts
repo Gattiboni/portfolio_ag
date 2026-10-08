@@ -1,8 +1,8 @@
-// PT/EN switch. The links work without JavaScript (they open the top of the
-// other locale). With JavaScript they also remember the choice under the same
+// PT/EN switch. The links work without JavaScript (they open the same page in
+// the other locale). With JavaScript they also remember the choice under the same
 // localStorage key the previous site used, and keep the current anchor. When
 // the choice cannot be stored, the target URL carries it instead ("?lang="),
-// so the detection on "/" does not send the visitor back (D004).
+// so the first-visit detection does not send the visitor back (D004).
 
 const STORAGE_KEY = "lang";
 

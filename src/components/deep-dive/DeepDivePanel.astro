@@ -1,0 +1,383 @@
+---
+// Side panel with the graph's three levels. Every view is in the HTML:
+// the start, one per zone and one per point (with its technical detail).
+// deep-dive-graph.ts only shows one and hides the rest. Without JavaScript
+// the start view stays, and its zones are links into the list.
+import {
+  CORE_ZONE,
+  fill,
+  nodeId,
+  zoneColor,
+  type DeepDive,
+} from "../../lib/deep-dive/content";
+
+interface Props {
+  dd: DeepDive;
+}
+
+const { dd } = Astro.props;
+const { ui } = dd;
+const core = dd.zoneById(CORE_ZONE);
+const zc = (zoneId: string) => `--zc:${zoneColor(dd.zoneById(zoneId))}`;
+---
+
+<aside class="dd-panel" data-dd-panel>
+  <div class="dd-view" data-view="home">
+    <div class="dd-k dd-k-how">{ui.howTo}</div>
+    <p class="dd-hint">{fill(ui.hint, { points: dd.pointCount })}</p>
+    <ul class="dd-rows dd-rows-z">
+      {dd.zones.map((z) => (
+        <li>
+          <a href={`#${z.id}`} data-zone={z.id} style={zc(z.id)}>
+            <b></b>
+            <span>{z.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {dd.zones.map((z) => (
+    <div class="dd-view" data-view={z.id} style={zc(z.id)} hidden>
+      <button type="button" class="dd-back" data-back-home>
+        {ui.allZones}
+      </button>
+      <div class="dd-k">
+        <i></i>
+        {ui.zone} {z.number}
+      </div>
+      <h2 tabindex="-1">{z.title}</h2>
+      <p class="dd-plain">{z.plain}</p>
+      <ul class="dd-rows">
+        {z.nodes.map((n, i) => (
+          <li>
+            <a href={`#${nodeId(z.id, i)}`} data-node={nodeId(z.id, i)}>
+              <b>{i + 1}</b>
+              <span>{n.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="dd-rel">
+        {z.id === CORE_ZONE ? (
+          <>
+            <h3>{ui.supports}</h3>
+            <ul>
+              {dd.coreRelations.map((r) => (
+                <li>
+                  <a href={`#${r.zone}`} data-zone={r.zone} style={zc(r.zone)}>
+                    <b>{dd.zoneById(r.zone).short}</b>
+                    <span>{r.why}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <>
+            <h3>{ui.restsOn}</h3>
+            <ul>
+              <li>
+                <a href={`#${core.id}`} data-zone={core.id} style={zc(core.id)}>
+                  <b>{core.short}</b>
+                  <span>{dd.coreWhy(z.id)}</span>
+                </a>
+              </li>
+            </ul>
+          </>
+        )}
+      </div>
+    </div>
+  ))}
+
+  {dd.zones.map((z) =>
+    z.nodes.map((n, i) => {
+      const id = nodeId(z.id, i);
+      const links = dd.linksOf(id);
+      return (
+        <div class="dd-view" data-view={id} style={zc(z.id)} hidden>
+          <button type="button" class="dd-back" data-back-zone={z.id}>
+            {fill(ui.backTo, { zone: z.short })}
+          </button>
+          <div class="dd-k">
+            <i></i>
+            {z.number} · {z.short}
+          </div>
+          <h2 tabindex="-1">{n.title}</h2>
+          <p class="dd-plain">{n.plain}</p>
+          {links.length > 0 && (
+            <div class="dd-rel">
+              <h3>{ui.linkedTo}</h3>
+              <ul>
+                {links.map((l) => {
+                  const other = dd.point(l.other);
+                  return (
+                    <li>
+                      <a
+                        href={`#${l.other}`}
+                        data-node={l.other}
+                        style={zc(other.zone.id)}
+                      >
+                        <b>{other.node.title}</b>
+                        <span>{l.why}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          <button
+            type="button"
+            class="dd-more"
+            aria-expanded="false"
+            aria-controls={`dd-deep-${id}`}
+            data-show={ui.showDetail}
+            data-hide={ui.hideDetail}
+          >
+            {ui.showDetail}
+          </button>
+          <div
+            class="dd-deep"
+            id={`dd-deep-${id}`}
+            hidden
+            set:html={n.deepHtml}
+          />
+        </div>
+      );
+    }),
+  )}
+</aside>
+
+<style is:global>
+  /* Values from the approved deep-dive mock. The panel sticks below the
+     fixed bar. */
+  .dd-panel {
+    position: sticky;
+    top: calc(var(--bar-height) + 20px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 24px 24px 26px;
+    min-height: 330px;
+    --zc: var(--gold);
+  }
+  .dd-k {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--zc);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dd-k i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--zc);
+  }
+  .dd-k-how {
+    color: var(--teal);
+  }
+  .dd-panel h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .dd-plain {
+    color: var(--cream-dim);
+    font-size: 0.95rem;
+  }
+  .dd-hint {
+    color: var(--muted);
+    font-size: 0.86rem;
+    margin-bottom: 16px;
+  }
+  .dd-panel button {
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+  .dd-panel .dd-back {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: inline-block;
+  }
+  .dd-panel .dd-back:hover {
+    color: var(--gold);
+  }
+  .dd-rows {
+    list-style: none;
+    margin-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  .dd-rows a {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.86rem;
+    color: var(--cream-dim);
+    text-decoration: none;
+    transition:
+      color 0.2s,
+      background 0.2s;
+  }
+  .dd-rows a:hover {
+    color: var(--cream);
+    background: rgb(242 237 227 / 0.03);
+  }
+  .dd-rows a b {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.66rem;
+    color: var(--zc);
+    padding-top: 3px;
+  }
+  .dd-rows-z a b {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--zc);
+    margin-top: 7px;
+    padding-top: 0;
+  }
+  .dd-rel {
+    margin-top: 20px;
+  }
+  .dd-rel h3 {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.66rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .dd-rel ul {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .dd-rel a {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--zc);
+    border-radius: 9px;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .dd-rel a:hover {
+    background: rgb(242 237 227 / 0.03);
+    border-color: rgb(242 237 227 / 0.2);
+    border-left-color: var(--zc);
+  }
+  .dd-rel a b {
+    display: block;
+    font-weight: 500;
+    font-size: 0.84rem;
+    color: var(--cream);
+  }
+  .dd-rel a span {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.45;
+    display: block;
+  }
+  .dd-panel .dd-more {
+    margin-top: 20px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    padding: 10px 18px;
+    color: var(--cream-dim);
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  .dd-panel .dd-more:hover,
+  .dd-panel .dd-more[aria-expanded="true"] {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .dd-panel .dd-deep {
+    margin-top: 18px;
+  }
+
+  /* Technical detail, shared by the panel and the list. */
+  .dd-deep {
+    font-size: 0.86rem;
+    color: var(--cream-dim);
+  }
+  .dd-deep p + p,
+  .dd-deep ul + p,
+  .dd-deep p + ul,
+  .dd-deep pre + p {
+    margin-top: 10px;
+  }
+  .dd-deep .lab {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.66rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-top: 14px;
+    margin-bottom: 8px;
+  }
+  .dd-deep .lab:first-child {
+    margin-top: 0;
+  }
+  .dd-deep ul {
+    padding-left: 18px;
+    display: grid;
+    gap: 5px;
+  }
+  .dd-deep b {
+    font-weight: 500;
+    color: var(--cream);
+  }
+  .dd-deep code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--gold);
+    background: var(--gold-soft);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .dd-deep pre {
+    margin-top: 8px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .dd-deep pre code {
+    background: none;
+    padding: 0;
+    color: var(--cream-dim);
+    font-size: 0.72rem;
+    line-height: 1.55;
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+// Entry to the deep dive from the end of the main case: a real link to the
+// page in the same locale. Its view-transition name matches the page header,
+// so the card becomes that header when it is the link followed (effect E,
+// D020).
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { site, type Locale } from "../../config/site";
+import { DEEP_DIVE_PATH } from "../../i18n/routes";
+import { getDeepDive } from "../../lib/deep-dive/content";
+import "../../styles/view-transition.css";
+
+const locale = (Astro.currentLocale ?? site.defaultLocale) as Locale;
+const { card } = getDeepDive(locale);
+const href = getRelativeLocaleUrl(locale, DEEP_DIVE_PATH);
+---
+
+<a class="dd-card" href={href}>
+  <span class="dd-card-k">{card.kicker}</span>
+  <span class="dd-card-title">{card.title}</span>
+  <span class="dd-card-text">{card.text}</span>
+</a>
+
+<style is:global>
+  /* Values from card E of the approved motion mock. */
+  .dd-card {
+    display: block;
+    margin-top: calc(var(--section-space) / 2);
+    border: 1px solid rgb(212 166 67 / 0.35);
+    border-radius: var(--radius);
+    padding: 30px 28px;
+    background: var(--gold-soft);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.25s;
+  }
+  /* The card carries the transition name only while it is the thing being
+     followed (pointer on it, keyboard focus, or a tap in progress). Leaving
+     the page any other way, from the bar for instance, is the plain fade,
+     with nothing flying in from off screen. */
+  .dd-card:is(:hover, :focus, :active) {
+    view-transition-name: deep-dive;
+  }
+  .dd-card:hover {
+    border-color: var(--gold);
+  }
+  .dd-card-k {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .dd-card-title {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    color: var(--cream);
+  }
+  .dd-card-text {
+    display: block;
+    margin-top: 10px;
+    color: var(--cream-dim);
+    font-size: 0.92rem;
+  }
+</style>

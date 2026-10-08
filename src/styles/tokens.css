@@ -49,6 +49,8 @@
 
   /* Layout */
   --content-width: 1080px;
+  /* Wider measure for the deep-dive map: the graph and its side panel. */
+  --content-width-wide: 1240px;
   --content-padding: 28px;
   --section-space: 110px;
   /* Height of the fixed bar in Nav.astro: 16px padding above and below the

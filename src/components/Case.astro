@@ -1,6 +1,7 @@
 ---
 import type { Dictionary } from "../i18n";
 import ChatDemo from "./ChatDemo.astro";
+import DeepDiveCard from "./deep-dive/DeepDiveCard.astro";
 
 interface Props {
   t: Dictionary;
@@ -70,6 +71,8 @@ const factDelay = (i: number) =>
         ))}
       </div>
     </div>
+
+    <DeepDiveCard />
   </div>
 </section>
 

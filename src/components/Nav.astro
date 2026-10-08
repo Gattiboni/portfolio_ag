@@ -6,11 +6,18 @@ import type { Dictionary } from "../i18n";
 interface Props {
   t: Dictionary;
   locale: Locale;
-  // The bar's share of the section list in HomePage.astro, in page order.
-  links: readonly { href: string; label: string }[];
+  // The bar's share of the section list in HomePage.astro, in page order;
+  // on other pages, their own links (the deep dive: one link back).
+  // `accent` marks the one highlighted item (the deep dive on the home page).
+  links: readonly { href: string; label: string; accent?: boolean }[];
+  // Where the name leads: the top of the home page by default.
+  brandHref?: string;
+  // The current page inside its locale ("" on the home pages), so the
+  // language switch opens the same page in the other language.
+  path?: string;
 }
 
-const { t, locale, links } = Astro.props;
+const { t, locale, links, brandHref = "#top", path = "" } = Astro.props;
 
 const langs = [
   {
@@ -18,25 +25,27 @@ const langs = [
     text: "PT",
     hreflang: "pt-BR",
     label: t.a11y.langPt,
-    href: getRelativeLocaleUrl("pt"),
+    href: getRelativeLocaleUrl("pt", path),
   },
   {
     code: "en",
     text: "EN",
     hreflang: "en",
     label: t.a11y.langEn,
-    href: getRelativeLocaleUrl("en"),
+    href: getRelativeLocaleUrl("en", path),
   },
 ] as const;
 ---
 
 <nav>
   <div class="nav-inner">
-    <a class="brand" href="#top" set:html={t.nav.brandHtml} />
+    <a class="brand" href={brandHref} set:html={t.nav.brandHtml} />
     <div class="nav-right">
       <div class="nav-links">
         {links.map((l) => (
-          <a href={l.href}>{l.label}</a>
+          <a href={l.href} class:list={{ "nav-accent": l.accent }}>
+            {l.label}
+          </a>
         ))}
       </div>
       <div class="lang" role="group" aria-label={t.a11y.langGroup}>
@@ -98,7 +107,9 @@ const langs = [
 <div class="nav-menu" id="nav-menu" popover>
   <div class="nav-menu-inner">
     {links.map((l) => (
-      <a href={l.href}>{l.label}</a>
+      <a href={l.href} class:list={{ "nav-accent": l.accent }}>
+        {l.label}
+      </a>
     ))}
   </div>
 </div>
@@ -126,16 +137,29 @@ const langs = [
      by 1px per pixel lost, and the side padding, the gap and the name give
      back 0.3, 0.25 and about 0.35 of it (48px at 320px wide for the 40px
      missing). It is 0 from 360px up, so nothing changes there. A fluid
-     value, not a breakpoint. */
+     value, not a breakpoint.
+
+     The links need about 1000px at full spacing (Portuguese, the longer
+     language). Below that, --links-squeeze grows by 1px per pixel lost, up to
+     100px, and the spaces give it back: the five gaps between links 0.12 each,
+     the gap before the switch 0.1, the side padding 0.08 each, the gap after
+     the name 0.06 and the highlighted item's pill 0.04 a side. At 900px every
+     label still fits on one line; below that the links move to the menu
+     (the one breakpoint, at the end of this stylesheet). */
   .nav-inner {
     --nav-squeeze: max(0px, 360px - 100vw);
+    --links-squeeze: clamp(0px, 1000px - 100vw, 100px);
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 16px calc(var(--content-padding) - var(--nav-squeeze) * 0.3);
+    padding: 16px
+      calc(
+        var(--content-padding) - var(--nav-squeeze) * 0.3 -
+          var(--links-squeeze) * 0.08
+      );
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: calc(18px - var(--nav-squeeze) * 0.25);
+    gap: calc(18px - var(--nav-squeeze) * 0.25 - var(--links-squeeze) * 0.06);
   }
   .brand {
     font-family: var(--font-display);
@@ -154,11 +178,11 @@ const langs = [
   .nav-right {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: calc(24px - var(--links-squeeze) * 0.1);
   }
   .nav-links {
     display: flex;
-    gap: 24px;
+    gap: calc(24px - var(--links-squeeze) * 0.12);
   }
   .nav-links a,
   .nav-menu a {
@@ -176,10 +200,25 @@ const langs = [
   .nav-menu a:focus-visible {
     color: var(--gold);
   }
-  @media (max-width: 820px) {
-    .nav-links {
-      display: none;
-    }
+
+  /* The one highlighted item: gold, in a thin gold pill, in the language of
+     the switch's active pill. The negative block margin takes back the
+     pill's padding, so the item keeps the row height of the others. */
+  .nav-links a.nav-accent {
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-pill);
+    background: var(--gold-soft);
+    padding: 3px calc(11px - var(--links-squeeze) * 0.04);
+    margin-block: -4px;
+  }
+  .nav-links a.nav-accent:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+    border-radius: var(--radius-pill);
+  }
+  .nav-menu a.nav-accent {
+    color: var(--gold);
   }
 
   /* Language switch. Production used <button>; these are links now (D004).
@@ -265,23 +304,14 @@ const langs = [
     width: 12px;
     height: 10px;
   }
-  @media (max-width: 820px) {
-    /* Only the switch and the menu button remain here; 4px keeps the bar on
-       one line down to 360px wide. */
-    .nav-right {
-      gap: 4px;
-    }
-    .menu-btn {
-      display: inline-flex;
-    }
-  }
 
   /* Hidden by default so browsers without popover support never show it. */
   .nav-menu {
     display: none;
   }
+  /* Shown only below the breakpoint, at the end of this stylesheet. */
   .nav-menu:popover-open {
-    display: block;
+    display: none;
     position: fixed;
     /* nav-menu.ts sets top to the bar's measured bottom edge. */
     inset: 61px 0 auto;
@@ -317,9 +347,28 @@ const langs = [
       -webkit-backdrop-filter: blur(14px);
     }
   }
-  @media (min-width: 821px) {
-    .nav-menu:popover-open {
+
+  /* The one breakpoint of the bar: below 900px the links move to the menu.
+     It was 820px; with the deep-dive item the links need 900px even with
+     every space squeezed (see .nav-inner). nav-menu.ts follows it by watching
+     the menu button, so this is the only place that names it. */
+  @media (max-width: 899px) {
+    .nav-inner {
+      --links-squeeze: 0px;
+    }
+    .nav-links {
       display: none;
+    }
+    /* Only the switch and the menu button remain here; 4px keeps the bar on
+       one line down to 360px wide. */
+    .nav-right {
+      gap: 4px;
+    }
+    .menu-btn {
+      display: inline-flex;
+    }
+    .nav-menu:popover-open {
+      display: block;
     }
   }
 </style>

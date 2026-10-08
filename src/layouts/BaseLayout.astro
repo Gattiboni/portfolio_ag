@@ -1,6 +1,8 @@
 ---
 import { getAbsoluteLocaleUrl } from "astro:i18n";
 import { site, type Locale } from "../config/site";
+import { pathWithinLocale } from "../i18n/routes";
+import LocaleRedirect from "../components/LocaleRedirect.astro";
 import "../styles/fonts.css";
 import "../styles/tokens.css";
 import "../styles/global.css";
@@ -21,6 +23,10 @@ const ogLocale: Record<Locale, string> = { en: "en_US", pt: "pt_BR" };
 
 const locale = (Astro.currentLocale ?? site.defaultLocale) as Locale;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Same page in every locale: "" on the home pages, the route elsewhere.
+const path = pathWithinLocale(Astro.url.pathname, locale);
+// First-visit language detection runs on every page of the default locale
+// (D004), at the top of <head>, before first paint.
 ---
 
 <!doctype html>
@@ -29,6 +35,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Page-specific head content that must run before first paint. -->
+    {locale === site.defaultLocale && <LocaleRedirect />}
     <slot name="head" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -37,13 +44,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <link
         rel="alternate"
         hreflang={langTag[l]}
-        href={getAbsoluteLocaleUrl(l)}
+        href={getAbsoluteLocaleUrl(l, path)}
       />
     ))}
     <link
       rel="alternate"
       hreflang="x-default"
-      href={getAbsoluteLocaleUrl(site.defaultLocale)}
+      href={getAbsoluteLocaleUrl(site.defaultLocale, path)}
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />

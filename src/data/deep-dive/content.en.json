@@ -1,0 +1,456 @@
+{
+  "meta": {
+    "title": "Central de Dados RH & MãoChat: the map of the project",
+    "description": "A map you can walk through of an HR data platform in production and its copilot: what was built, why this way, and the technical detail behind each decision."
+  },
+  "page": {
+    "back": "← portfolio",
+    "eyebrow": "Case in production · HR data platform",
+    "titleHtml": "Central de Dados RH &amp; MãoChat: <em>the map</em> of what was built and why.",
+    "facts": [
+      {
+        "value": "~100",
+        "label": "releases in 6 months"
+      },
+      {
+        "value": "231",
+        "label": "decisions recorded, with the reason why"
+      },
+      {
+        "value": "15 · ~190",
+        "label": "schemas and tables in PostgreSQL"
+      },
+      {
+        "value": "~1,150",
+        "label": "automated tests"
+      }
+    ]
+  },
+  "nav": {
+    "label": "Deep dive"
+  },
+  "card": {
+    "kicker": "Deep dive · 8 zones",
+    "title": "How the platform was built, and why this way",
+    "text": "A map you can walk through: one plain line per idea, technical detail only if you ask for it."
+  },
+  "ui": {
+    "graphLabel": "Map of the project: the architecture at the centre and seven zones around it",
+    "miniLabel": "The eight zones. Tap one to open it in the list",
+    "howTo": "How to read it",
+    "hint": "The architecture at the centre, seven zones around it, {points} points. Pick a zone or click straight on a point.",
+    "zone": "Zone",
+    "allZones": "← all zones",
+    "backTo": "← {zone}",
+    "linkedTo": "Linked to",
+    "restsOn": "Rests on the architecture",
+    "supports": "What rests on it",
+    "showDetail": "See the technical detail",
+    "hideDetail": "Close the technical detail",
+    "detail": "technical detail",
+    "listTitle": "The same content, as a list",
+    "filter": "filter (e.g. SQL)",
+    "filterLabel": "Filter the list",
+    "expandAll": "expand all",
+    "collapseAll": "collapse all"
+  },
+  "zones": [
+    {
+      "id": "arch",
+      "number": "01",
+      "title": "Architecture & infrastructure",
+      "short": "Architecture",
+      "plain": "Where the system runs and how it is kept under control.",
+      "lead": "A central database, an API server and a web interface, hosted on managed services so that one person can run everything without becoming an infrastructure team.",
+      "nodes": [
+        {
+          "title": "Stack in one sentence",
+          "plain": "Managed PostgreSQL 18, an API in FastAPI (Python), a React front end. API and database in the same region for minimal latency.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Moved in April from a prototyping platform to managed hosting (Railway + Vercel) without stopping the product. The reason: control over network, credentials and deploys. In the move the database security group went from <code>0.0.0.0/0</code> to a named allowlist of IPs.</p><p><b>Why not Kubernetes, Airflow and the rest?</b> A team of one. Deploy on push, native cron and zero ops were requirements, not preferences. The design does not prevent a change later: nothing in the application depends on the provider.</p>"
+        },
+        {
+          "title": "15 schemas, each with one job",
+          "plain": "Bronze (raw), silver (clean), gold (ready for the screen) and 12 supporting schemas: reference, governance, audit, staging, archive.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><ul><li><b>bronze</b>: the source payload as it arrived (jsonb), never edited. It is what makes reprocessing from scratch possible.</li><li><b>silver</b>: normalised, typed, with a business key and deduplication.</li><li><b>gold</b>: metrics and dimensions ready to use. A fixed rule: <b>the front end reads gold; the API never reads silver</b>.</li><li><b>ref</b>: lookups (region, canonical cost center with <code>is_current</code>), calendar.</li><li><b>governance</b>: rebuild log, snapshots of the copilot context, module registry.</li><li><b>audit / analytics</b>: usage and interaction telemetry.</li><li><b>archive</b>: retired modules stay queryable without cluttering the rest.</li></ul>"
+        },
+        {
+          "title": "Governed schema changes",
+          "plain": "Every change to the database goes through simulate → approve → execute → stamp. Nothing is altered by hand.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>DDL runs through an MCP tool with a mandatory <code>dry_run</code>, explicit approval, execution and a confirmation <code>SELECT</code> recorded in governance. The Decision Log keeps the why; the stamp keeps the when and the what.</p><p>A trade-off taken knowingly: no versioned migration files in the repository. For a team of one a migration file becomes theatre; the audit trail lives in the database and in the decision log. If the team grows, the natural step is to generate migrations from the stamp.</p>"
+        },
+        {
+          "title": "One source for routes, menu and permissions",
+          "plain": "The menu, the application map and who can see what are derived from a single declared tree. One place to change, zero drift.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p><code>ROUTES_TREE</code> is the single source: the front-end router, the sidebar, the App Map and the permission check on the backend are all generated from it. Permissions granted in bulk carry <code>granted_via</code>, so \"why can this person see this screen\" has an answer without an investigation.</p>"
+        },
+        {
+          "title": "Refactoring the monolith",
+          "plain": "The main API file had 4,528 lines. Today it has 102, with 15 route modules and 31 dead endpoints removed.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>How to find a dead endpoint without breaking anything: cross three lists (what the front end calls, what the API exposes, what telemetry records as accessed). Whatever appeared in none of them was removed. This phase produced the project's \"golden rule\": telemetry and audit are best-effort and <b>never</b> take down a response to the user.</p>"
+        }
+      ]
+    },
+    {
+      "id": "pipe",
+      "number": "02",
+      "title": "Data pipeline",
+      "short": "Data pipeline",
+      "plain": "How data comes in, gets cleaned and becomes a number you can trust.",
+      "lead": "Each source system has an 'adapter' that only knows how to copy the raw data. Cleaning and business rules happen afterwards, once, in the same place. Replacing a source does not force anything to be rewritten.",
+      "nodes": [
+        {
+          "title": "Integrated sources",
+          "plain": "Time-clock system (API), corporate chat suite (sheets, bases, bot, login), ERP, legacy time-clock database, BI extracts, corporate cost-center registry, recruiting ATS, benefits files.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Each source writes to bronze and nowhere else. The canonical region comes from the corporate cost-center registry, not from the ERP, because that is what the business recognised as true. Cost-center history is kept with <code>is_current</code> instead of being overwritten.</p>"
+        },
+        {
+          "title": "A home-grown rebuild orchestrator",
+          "plain": "Each step declares what it depends on; the system works out the order by itself and records the start and end of each one.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A <code>@rebuild_step</code> decorator with explicit dependencies, topological ordering (Kahn) and <code>_started</code>/<code>_complete</code> sentinels in a governance table. A sentinel opened and never closed is an aborted rebuild, visible on the panel. Partial runs by <code>trigger_source</code>: an updated source triggers only the steps it affects.</p><p><b>Why not Airflow?</b> Dozens of steps on a single Postgres; a DAG in Python with its log in a table can be inspected with SQL and adds no service to maintain.</p>"
+        },
+        {
+          "title": "Idempotent ingestion",
+          "plain": "Running it twice gives the same result. One table went from 5.5 million to 930 thousand rows just by deduplicating on the right key; the rebuild went from 78 s to 28 s.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>One pattern in every ingestion: <code>COPY</code> into a temporary table, then <code>UPSERT</code> on the business primary key. Batches with <code>execute_values</code> (page_size 500 to 1000).</p>"
+        },
+        {
+          "title": "Time-clock sync: from 4 hours to 18 seconds",
+          "plain": "The original process wrote record by record. The new one fetches by time window, stores the whole block and explodes it in SQL.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>The whole API array lands in bronze as jsonb; <code>jsonb_array_elements</code> explodes it in one query; a watermark keeps the last period consumed. The historical backfill went from hours to minutes by going bronze-only and leaving the transformation to SQL.</p>"
+        },
+        {
+          "title": "Honest failure",
+          "plain": "If part of the data did not arrive, the process fails and says so. It never 'finishes' with a silent hole.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>The time-clock API truncates large responses: chunks of at most 2 days per call. A chunk that fails propagates the error and takes the job down (the sentinel stays open). Reprocessing is by window, with a <code>DELETE</code> of the window before the insert so that no ghost record is left; the accounting window stays open for the current month. A D-1 window in Brasília time, with overlap.</p>"
+        },
+        {
+          "title": "Concurrency",
+          "plain": "Two users opening the same dashboard do not trigger two reprocessing runs.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Postgres advisory locks keyed by step, both in the on-read ETL and in ingestion. The connection pool was resized when the front end started making calls in parallel (React Query).</p>"
+        },
+        {
+          "title": "Honest data, and the formula is law",
+          "plain": "Null is not zero. Every metric has a formula signed off by whoever owns the rule in the business; if nobody signed, it does not go in.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Examples: weighted attendance is Σpresent/Σexpected, never an average of percentages; a region is the exact sum of its cost centers; clock-in compliance is computed per punch source; eligibility uses hire and termination dates. Every metric in gold declares <code>law</code> and <code>source_of_truth</code> in the semantic layer.</p>"
+        }
+      ]
+    },
+    {
+      "id": "mao",
+      "number": "03",
+      "title": "MãoChat, the copilot",
+      "short": "MãoChat",
+      "plain": "A question in Portuguese (or Mandarin), an answer with the right number and the SQL that produced it.",
+      "lead": "The language model never 'guesses' a number. It writes a query, the system validates it and runs it with read-only permission, and the answer is written from the rows that came back. Everything is recorded, and a person decides what the system learns.",
+      "nodes": [
+        {
+          "title": "The path of a question",
+          "plain": "Two model calls per question: one to plan the query, one to write the answer from the real result.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><ul><li><b>Planning</b> via tool use: the model returns SQL plus intent.</li><li><b>Validation on the server</b>: a single statement; a word-boundary denylist; comments stripped before validating (this closed a real vector); a cost gate via <code>EXPLAIN</code>; <code>LIMIT</code> injected.</li><li><b>Execution</b> with a read-only role per request, never the application's own connection.</li><li><b>PII gate</b> by column sensitivity before any row reaches the model.</li><li><b>Synthesis</b> anchored on the rows: no row, no number.</li></ul><p>Provider: Anthropic (Claude). The copilot was moved from one provider to another without changing the architecture: validation, execution and synthesis do not depend on who generates the text.</p>"
+        },
+        {
+          "title": "A curated semantic layer",
+          "plain": "Instead of handing the model 190 tables and hoping, it gets 12 tables described by people, the official formulas and 27 verified examples.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Versioned YAML in the repository: tables, metrics with <code>law</code>/<code>source_of_truth</code>, verified question→SQL examples, a graph of business concepts. Concepts go into the prompt <b>before</b> the tables, because the typical error is one of vocabulary, not of SQL. A nightly snapshot of the context (cron) records what the model \"saw\" on each date, so any answer can be audited against the context of that day.</p><p><b>What about RAG with vectors?</b> A small, closed domain: curation pays more than similarity. Retrieval is a means; what guarantees quality is the contract of the context (what goes in, where it comes from, who approved it) and the validation of what comes out. Vectors come in when scale asks for them, without changing the rest.</p>"
+        },
+        {
+          "title": "Telemetry and feedback",
+          "plain": "Every interaction records 48 fields (question, plan, SQL, cost, latency per stage, rows, user rating). Without this there is no improvement and no cost control.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>An interaction audit table plus star ratings. Prompt caching on the stable part of the context. All of it best-effort: if telemetry fails, the answer still goes out.</p>"
+        },
+        {
+          "title": "A learning loop with a human gate",
+          "plain": "The system proposes what to learn from real questions; a person approves, rejects or sends it back with guidance; only then does it enter the curated base.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A two-stage miner (classifier → proposer) over the interactions. A human gate with three outcomes. What goes in is a deterministic package (a verified example or a concept), never a prompt rewritten by AI. A daily digest in the corporate chat at 05:30 with what was proposed and decided. This is LLM governance in practice: learning with an audit trail.</p>"
+        },
+        {
+          "title": "Beta early, on purpose",
+          "plain": "It went out in beta before it was 'ready', because real questions were the data that was missing.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Calibration v2 came from the beta: a privilege pre-check (the model does not try to answer what the user may not see), honest evidence (\"I did not find it\" instead of an approximation), session history in the prompt, business freshness and a clock block (what day it is, which accounting period is open).</p>"
+        },
+        {
+          "title": "A cost incident, told without shame",
+          "plain": "A group-analysis job went into a loop and spent about USD 20 a day for 16 days before it was caught.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Cause: reprocessing items that had already failed, indefinitely. A structural fix, not a patch: a result-memory table (what was already tried and how it ended), a cost ceiling per run and a daily alert. It applies to any job that calls an LLM.</p>"
+        }
+      ]
+    },
+    {
+      "id": "auto",
+      "number": "04",
+      "title": "Self-discovery: App Map, Dependency Map and MOAS",
+      "short": "Self-discovery",
+      "plain": "The system describes itself. The documentation does not age because nobody writes it by hand.",
+      "lead": "The classic fear is the product born with beautiful documentation where, six months later, nobody knows what depends on what. Here the application map, the dependency map and the inventory of names are generated from the code and the database themselves, at every change. What is on screen is what exists.",
+      "nodes": [
+        {
+          "title": "App Map",
+          "plain": "A map of every screen, route and permission, generated from the same tree that feeds the menu. If a screen exists, it is on the map; if it is not on the map, it does not exist.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A route tree declared in the front end (<code>ROUTES_TREE</code>) is the single source for three consumers: the router, the sidebar and the App Map. Adding a page is adding a node; menu and map follow by themselves. The backend completes the map with the API routes, the database inventory, the integrations and the environment variables, and stores each generation as a snapshot.</p>"
+        },
+        {
+          "title": "Dependency Map",
+          "plain": "Who feeds whom, and whether it is up to date: source → final table. It answers 'this source was updated and the dashboard was not?' without opening the code.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A declarative governance table lists each source → final table pair and how it is triggered (upload, sync or manual). On every scan the system finds out from the database catalog which date column each table has, compares the last load of the source with the last recorded rebuild and classifies the pair: up to date, stale or unknown. An empty table is \"unknown\", never \"up to date\". Every scan becomes an auditable snapshot.</p>"
+        },
+        {
+          "title": "MOAS (Mother of All Selects)",
+          "plain": "A set of read-only SELECTs that goes straight to the database catalog and produces the whole data dictionary, with nothing written by hand. It runs on self-discovery: if the schema changed, the dictionary changes with it.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A self-discovered inventory: schemas, tables, columns, types and comments come from Postgres itself on every run. A rule that was born here and became a principle of the project: <b>MOAS-first applies to code</b>. A name (column, route, metric) is checked at the source before it is used, never invented along the way. The nightly context snapshot of MãoChat starts from this dictionary, so the copilot never \"knows\" a table that no longer exists.</p><p class=\"lab\">An excerpt, abridged</p><pre><code>SELECT n.nspname          AS schema_name,\n       c.relname          AS object_name,\n       c.reltuples::bigint AS estimated_rows\nFROM pg_class c\nJOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname NOT IN ('pg_catalog', 'information_schema')\n  AND c.relkind IN ('r', 'p', 'v', 'm')\nORDER BY 1, 2;</code></pre><p>No table name is written down: whatever exists in the database tomorrow shows up by itself.</p>"
+        },
+        {
+          "title": "Module registry with an on/off switch",
+          "plain": "Each module registers itself and can be switched off without deleting anything. A whole module was frozen and archived this way.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A registry with <code>is_enabled</code> per module; queues and jobs check the registry before running. The 360 review module was built, frozen and moved to the <code>archive</code> schema: its history stays queryable at zero maintenance cost.</p>"
+        }
+      ]
+    },
+    {
+      "id": "mot",
+      "number": "05",
+      "title": "Outsourced workforce",
+      "short": "Contractors",
+      "plain": "The module with the most integration and the most people involved: daily attendance of outsourced staff, requests and reconciliation with suppliers.",
+      "lead": "Who is present today, in which cost center, through which supplier, and what was ordered against what was delivered. A pilot in one sorting center, designed to scale to all of them.",
+      "nodes": [
+        {
+          "title": "The central fact",
+          "plain": "One table: person × cost center × day. It took six rounds of API investigation and a census to find the endpoint that returned this correctly.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>The supplier is an attribute of the assignment, not of the person: someone can change supplier without becoming another person in the system. The right endpoint required a specific credential context of the time-clock API.</p>"
+        },
+        {
+          "title": "The 14 days of 401",
+          "plain": "A credential in the wrong context made the integration answer 'unauthorized' for two weeks, in silence.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A fix in two parts: the right credential and a fallback that <b>shouts</b> on the first cycle. A lesson repeated across the whole project: a silent integration failure is the worst kind of failure.</p>"
+        },
+        {
+          "title": "Reconciliation: 74 minutes → 12 seconds",
+          "plain": "The engine that compares what was ordered with what was delivered stopped running row by row.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Rewritten in batches with <code>execute_values</code>. Same logic, same output, 370× faster.</p>"
+        },
+        {
+          "title": "Operational flow",
+          "plain": "Requests with well-defined states, a supplier portal, bilingual notices (Portuguese/Mandarin), a deadline of 4 hours before the shift.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>An explicit state machine; the dashboard was built contract-first (the API contract came before the screen). Iterations with operations removed the \"urgency\" field and made the shift mandatory: less ambiguity, fewer wrong orders.</p>"
+        }
+      ]
+    },
+    {
+      "id": "mods",
+      "number": "06",
+      "title": "Other modules",
+      "short": "Other modules",
+      "plain": "Breadth: compliance, labour liabilities, time tracking, benefits, recruiting, workplace safety.",
+      "lead": "The same foundation served several different HR fronts without rewriting the base. That is the real test of an architecture.",
+      "nodes": [
+        {
+          "title": "Labour compliance",
+          "plain": "Apprentice quota (Brazilian Law 10.097) calculated with the rule signed off by payroll: 5% rounded up, with a floor of 7.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>This is where the <code>/api/v1/</code> pattern and the refactor of the connection pool came from.</p>"
+        },
+        {
+          "title": "Labour liabilities",
+          "plain": "ERP spreadsheets become a historical series by accounting period, with drill-down from cost center to person.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>The period is detected from the file itself; deduplication by file hash and by content hash; replacement per cost center; full name resolved from the registry.</p>"
+        },
+        {
+          "title": "Time-clock monitor",
+          "plain": "The first module delivered by someone else on the team, without rewriting the base.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>A lean silver layer, expected headcount from the registry, deduplication of the API payload. Proof that the architecture holds a second developer.</p>"
+        },
+        {
+          "title": "KPI summary",
+          "plain": "Direct manipulation of spreadsheet XML: 1 second per file, dynamic layout detection.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Reading with calamine; writing by editing the XML of the xlsx instead of recreating the spreadsheet.</p>"
+        },
+        {
+          "title": "Recruiting (ATS → request)",
+          "plain": "A PDF from the ATS becomes a structured request. Vocabulary is translated or left blank: never guessed.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Table extraction with pdfplumber; deduplication in three layers.</p>"
+        },
+        {
+          "title": "Corporate login and benefits",
+          "plain": "Login through the corporate chat (OAuth) with auto-provisioning; a public benefits page with usage telemetry.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Access gate = department ∪ whitelist. Password reset by a message in the corporate chat with a hashed token. An opaque identifier in the front end in place of the national ID number.</p>"
+        }
+      ]
+    },
+    {
+      "id": "princ",
+      "number": "07",
+      "title": "Principles",
+      "short": "Principles",
+      "plain": "The rules that do not change, even under deadline pressure.",
+      "lead": "Three things are non-negotiable and the rest is conversation.",
+      "nodes": [
+        {
+          "title": "Incrementality",
+          "plain": "No decision may be an obvious obstacle to the next one.",
+          "deepHtml": "<p class=\"lab\">In practice</p><p>A platform migration without stopping the product; the monolith refactored before a new module was added, not after.</p>"
+        },
+        {
+          "title": "Modularity",
+          "plain": "Plug and unplug any source without rewriting the core.",
+          "deepHtml": "<p class=\"lab\">In practice</p><p>Adapters write to bronze and nowhere else; a whole module was archived without touching the others.</p>"
+        },
+        {
+          "title": "Zero technical debt",
+          "plain": "No workarounds, no 'we will fix it later'.",
+          "deepHtml": "<p class=\"lab\">In practice</p><p>The cost incident became result memory + ceiling + alert, not a try/except. The 401 became a fallback that shouts, not a retry.</p>"
+        },
+        {
+          "title": "No false green",
+          "plain": "A test that passes without testing is worse than a red test. A process that 'finishes' with a hole is a failure.",
+          "deepHtml": "<p class=\"lab\">In practice</p><p>UI tested in two layers: binary checks by an agent in the browser and human judgment on what the screen says.</p>"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "number": "08",
+      "title": "How it was built",
+      "short": "How it was built",
+      "plain": "A human architect, a coding agent as executor, gates between the two.",
+      "lead": "I design, decide and review; a coding agent writes. Nothing gets in without passing two gates: a review of the plan before any file is touched, and tests with a diff before integrating. The Decision Log with 231 entries is the by-product of this method.",
+      "nodes": [
+        {
+          "title": "Gates α and β",
+          "plain": "α: the plan is reviewed before any file is touched. β: diff and tests before integrating. The agent never commits.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Implementation instructions written in a fixed format (context, scope, out of scope, acceptance criteria). An anti-contamination clause: one thing at a time, no \"while I am here\" fixes for what was not asked. Two or three sessions in parallel when the fronts are independent (backend / front end, ETL / audit).</p>"
+        },
+        {
+          "title": "Documentation as part of the release",
+          "plain": "Changelog and Decision Log close with the code, not after it. That is why there are 231 decisions and ~100 traceable releases.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Each decision records context, alternatives, decision, rationale, owner and status. It is what lets a second developer understand why something is the way it is, without asking.</p>"
+        },
+        {
+          "title": "Since when",
+          "plain": "I have worked with coding agents since late 2023, when it was still uncharted territory. The gate method came from getting it wrong early.",
+          "deepHtml": "<p class=\"lab\">Technical detail</p><p>Trust in generated code is not a default: it is earned by tests. The role of the human moves up a level (architecture, business rules, review); it does not disappear.</p>"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "arch-3",
+      "to": "auto-0",
+      "why": "The App Map is a projection of the same route tree that builds the menu."
+    },
+    {
+      "from": "auto-2",
+      "to": "mao-1",
+      "why": "The copilot's context starts from the real inventory of the database."
+    },
+    {
+      "from": "auto-0",
+      "to": "mao-1",
+      "why": "The map of screens goes into the context the copilot receives every night."
+    },
+    {
+      "from": "auto-1",
+      "to": "mao-1",
+      "why": "The state of each source goes into the context: the copilot knows what is stale."
+    },
+    {
+      "from": "pipe-6",
+      "to": "mao-1",
+      "why": "Every curated metric declares its official formula and its source of truth."
+    },
+    {
+      "from": "mao-2",
+      "to": "mao-3",
+      "why": "What the system proposes to learn comes out of the recorded interactions."
+    },
+    {
+      "from": "mao-5",
+      "to": "princ-2",
+      "why": "The incident became result memory, a ceiling and an alert, not a try/except."
+    },
+    {
+      "from": "mot-1",
+      "to": "princ-2",
+      "why": "The 401 became a fallback that shouts, not a retry."
+    },
+    {
+      "from": "mot-1",
+      "to": "auto-2",
+      "why": "The error surfaced in a MOAS run made for another front."
+    },
+    {
+      "from": "pipe-4",
+      "to": "princ-3",
+      "why": "A process that finishes with a hole is a failure: the same principle in data and in tests."
+    },
+    {
+      "from": "pipe-0",
+      "to": "princ-1",
+      "why": "Each source has an adapter that writes to the raw layer and nowhere else."
+    },
+    {
+      "from": "auto-3",
+      "to": "princ-1",
+      "why": "A whole module was archived without touching the others."
+    },
+    {
+      "from": "arch-4",
+      "to": "princ-0",
+      "why": "The refactor came before the new module, not after."
+    },
+    {
+      "from": "arch-0",
+      "to": "princ-0",
+      "why": "The platform moved house without stopping the product."
+    },
+    {
+      "from": "arch-2",
+      "to": "build-1",
+      "why": "The Decision Log keeps the why; the stamp in the database keeps the when and the what."
+    },
+    {
+      "from": "mods-2",
+      "to": "build-1",
+      "why": "It was the record of decisions that let someone else deliver without asking."
+    },
+    {
+      "from": "build-0",
+      "to": "princ-3",
+      "why": "Gate β checks in two layers: checks by an agent and human judgment."
+    },
+    {
+      "from": "pipe-2",
+      "to": "mot-2",
+      "why": "The same batch-write pattern, applied to the reconciliation engine."
+    }
+  ],
+  "coreRelations": [
+    {
+      "zone": "pipe",
+      "why": "Each source writes to the raw layer; cleaning and rules happen once, in the layers that follow."
+    },
+    {
+      "zone": "mao",
+      "why": "The copilot reads the finished layer only, with read permission, never through the application's connection."
+    },
+    {
+      "zone": "auto",
+      "why": "The three maps are read from the database and the route tree themselves, not written on the side."
+    },
+    {
+      "zone": "mot",
+      "why": "Attendance, requests and reconciliation use the same layers as the rest of the platform."
+    },
+    {
+      "zone": "mods",
+      "why": "The same foundation served several fronts without rewriting the base."
+    },
+    {
+      "zone": "princ",
+      "why": "The three principles are the yardstick for every architecture decision."
+    },
+    {
+      "zone": "build",
+      "why": "Every change to the architecture goes through the two gates and is recorded."
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+---
+// The deep-dive page, composed once and rendered by both locale routes.
+import { getRelativeLocaleUrl } from "astro:i18n";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Locale } from "../../config/site";
+import { getDictionary } from "../../i18n";
+import { DEEP_DIVE_PATH } from "../../i18n/routes";
+import { getDeepDive } from "../../lib/deep-dive/content";
+import Background from "../Background.astro";
+import Nav from "../Nav.astro";
+import Footer from "../Footer.astro";
+import DeepDiveHead from "./DeepDiveHead.astro";
+import DeepDiveMini from "./DeepDiveMini.astro";
+import DeepDiveGraph from "./DeepDiveGraph.astro";
+import DeepDivePanel from "./DeepDivePanel.astro";
+import DeepDiveList from "./DeepDiveList.astro";
+import "../../styles/view-transition.css";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDictionary(locale);
+const dd = getDeepDive(locale);
+const home = getRelativeLocaleUrl(locale);
+// The bar: the name leads home, and one link goes back to the main case.
+const links = [{ href: `${home}#case`, label: dd.page.back }];
+// The <noscript> rule: without JavaScript the list's zones show their
+// content, so a point reached from the graph is visible on arrival. Where
+// ::details-content is unsupported, a zone still opens with one click.
+---
+
+<BaseLayout
+  title={dd.meta.title}
+  description={dd.meta.description}
+  ogTitle={dd.meta.title}
+  ogDescription={dd.meta.description}
+>
+  <noscript slot="head">
+    <style is:inline>
+      .dd-zone-item::details-content {
+        content-visibility: visible;
+        display: block;
+      }
+    </style>
+  </noscript>
+  <Background />
+  <Nav
+    t={t}
+    locale={locale}
+    links={links}
+    brandHref={home}
+    path={DEEP_DIVE_PATH}
+  />
+  <main class="dd-main">
+    <section class="wrap dd-wide">
+      <DeepDiveHead dd={dd} />
+      <div class="dd-stage">
+        <DeepDiveMini dd={dd} />
+        <DeepDiveGraph dd={dd} />
+        <DeepDivePanel dd={dd} />
+      </div>
+    </section>
+    <section class="wrap dd-wide" aria-labelledby="dd-list-title">
+      <DeepDiveList dd={dd} />
+    </section>
+  </main>
+  <Footer t={t} />
+</BaseLayout>
+
+<script>
+  import { initDeepDiveGraph } from "../../scripts/deep-dive-graph";
+  import { initDeepDiveMini } from "../../scripts/deep-dive-mini";
+  import { initDeepDiveList } from "../../scripts/deep-dive-list";
+  initDeepDiveGraph();
+  initDeepDiveMini();
+  initDeepDiveList();
+</script>
+
+<style is:global>
+  /* Jumps on this page are instant. A smooth scroll to an anchor on load
+     aims at a position computed before the layout settles (fonts, the long
+     list), and stops short of the target; an instant one is redone by the
+     browser until the page has loaded. */
+  :root:has(.dd-main) {
+    scroll-behavior: auto;
+  }
+  /* Clears the fixed bar; the sections' own rhythm starts below it (D022). */
+  .dd-main {
+    padding-top: var(--bar-height);
+  }
+  .wrap.dd-wide {
+    max-width: var(--content-width-wide);
+  }
+  /* Values from the approved deep-dive mock. */
+  .dd-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 370px;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .dd-stage {
+      grid-template-columns: 1fr;
+    }
+    .dd-panel {
+      position: static;
+      min-height: 0;
+    }
+  }
+  @media (max-width: 760px) {
+    .dd-graph,
+    .dd-panel {
+      display: none;
+    }
+  }
+</style>

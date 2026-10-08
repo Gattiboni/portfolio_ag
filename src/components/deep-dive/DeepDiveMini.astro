@@ -1,0 +1,109 @@
+---
+// Reduced graph for narrow screens: the eight zones, the core at the centre.
+// Static SVG from layoutMini(); each zone is a link to that zone in the list.
+// deep-dive-mini.ts opens the zone before the browser scrolls to it.
+import {
+  CORE_ZONE,
+  zoneColor,
+  type DeepDive,
+} from "../../lib/deep-dive/content";
+import { MINI, layoutMini } from "../../lib/deep-dive/layout";
+
+interface Props {
+  dd: DeepDive;
+}
+
+const { dd } = Astro.props;
+const mini = layoutMini(
+  dd.zones.map((z) => ({
+    id: z.id,
+    nodeCount: z.nodes.length,
+    short: z.short,
+  })),
+  CORE_ZONE,
+);
+const c = MINI.size / 2;
+---
+
+<div class="dd-mini">
+  <svg
+    viewBox={`0 0 ${MINI.size} ${MINI.size}`}
+    role="group"
+    aria-label={dd.ui.miniLabel}
+    data-dd-mini
+  >
+    <g>
+      {mini.spokes.map((s) => (
+        <line class="dd-mini-sp" x1={c} y1={c} x2={s.x} y2={s.y} />
+      ))}
+    </g>
+    {mini.zones.map((m) => {
+      const z = dd.zoneById(m.id);
+      return (
+        <a
+          href={`#${m.id}`}
+          data-zone={m.id}
+          aria-label={z.title}
+          style={`--zc:${zoneColor(z)}`}
+        >
+          <circle class="dd-mini-halo" cx={m.x} cy={m.y} r={m.r + 9} />
+          <circle class="dd-mini-c" cx={m.x} cy={m.y} r={m.r} />
+          {m.lines.map((l) => (
+            <text x={m.x} y={l.y} text-anchor="middle">
+              {l.text}
+            </text>
+          ))}
+        </a>
+      );
+    })}
+  </svg>
+</div>
+
+<style is:global>
+  /* Values from the approved deep-dive mock. Shown at 760px and below. */
+  .dd-mini {
+    display: none;
+  }
+  .dd-mini svg {
+    width: 100%;
+    height: auto;
+  }
+  .dd-mini-sp {
+    stroke: rgb(242 237 227 / 0.22);
+    stroke-width: 1.2;
+  }
+  .dd-mini-halo {
+    fill: var(--zc);
+    opacity: 0.16;
+  }
+  .dd-mini-c {
+    fill: var(--zc);
+  }
+  .dd-mini text {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 11.5px;
+    fill: var(--cream);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .dd-mini a {
+    cursor: pointer;
+  }
+  .dd-mini a:focus-visible {
+    outline: none;
+  }
+  .dd-mini a:focus-visible .dd-mini-c {
+    stroke: var(--teal);
+    stroke-width: 2.5;
+  }
+  @media (max-width: 760px) {
+    .dd-mini {
+      display: block;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+  }
+</style>

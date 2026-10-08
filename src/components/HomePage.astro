@@ -1,8 +1,11 @@
 ---
 // The home page, composed once and rendered by both locale routes.
+import { getRelativeLocaleUrl } from "astro:i18n";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import type { Locale } from "../config/site";
 import { getDictionary, type Dictionary } from "../i18n";
+import { DEEP_DIVE_PATH } from "../i18n/routes";
+import { getDeepDive } from "../lib/deep-dive/content";
 import Background from "./Background.astro";
 import Nav from "./Nav.astro";
 import Hero from "./Hero.astro";
@@ -24,6 +27,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getDictionary(locale);
+const deepDive = getDeepDive(locale);
 
 interface Section {
   // Anchor id, shared by both locales (published links depend on it).
@@ -36,9 +40,23 @@ interface Section {
   Before?: (props: { t: Dictionary }) => unknown;
 }
 
-// The one list of content sections. The page renders them from here, in this
-// order; the bar takes the ones marked inNav; the index takes all of them.
-const sections: readonly Section[] = [
+// A bar entry that is not a section: a link to another page. It has no
+// anchor, is never rendered as a section and stays out of the index.
+interface PageLink {
+  href: string;
+  label: string;
+  inNav: true;
+  // Drawn as the bar's one highlighted item.
+  accent: boolean;
+}
+
+type Entry = Section | PageLink;
+const isSection = (e: Entry): e is Section => "Component" in e;
+
+// The one list of content sections, plus the bar's links to other pages.
+// The page renders the sections from here, in this order; the bar takes the
+// entries marked inNav, in the same order; the index takes every section.
+const entries: readonly Entry[] = [
   { id: "sobre", Component: About, label: t.nav.about, inNav: true },
   { id: "ajudo", Component: Help, label: t.nav.help, inNav: true },
   {
@@ -48,6 +66,12 @@ const sections: readonly Section[] = [
     inNav: false,
   },
   { id: "case", Component: Case, label: t.nav.case, inNav: true },
+  {
+    href: getRelativeLocaleUrl(locale, DEEP_DIVE_PATH),
+    label: deepDive.nav.label,
+    inNav: true,
+    accent: true,
+  },
   { id: "projetos", Component: Projects, label: t.nav.projects, inNav: true },
   {
     id: "contato",
@@ -58,9 +82,14 @@ const sections: readonly Section[] = [
   },
 ];
 
-const navLinks = sections
-  .filter((s) => s.inNav)
-  .map((s) => ({ href: `#${s.id}`, label: s.label }));
+const sections = entries.filter(isSection);
+const navLinks = entries
+  .filter((e) => e.inNav)
+  .map((e) =>
+    isSection(e)
+      ? { href: `#${e.id}`, label: e.label }
+      : { href: e.href, label: e.label, accent: e.accent },
+  );
 const indexItems = sections.map((s) => ({ id: s.id, label: s.label }));
 ---
 

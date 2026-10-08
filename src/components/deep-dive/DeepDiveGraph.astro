@@ -1,0 +1,340 @@
+---
+// The full graph, drawn at build time from the content and layoutGraph().
+// Every line is a declared relation: zone to its points, outer zone to the
+// nucleus (coreRelations), point to point (relations). Zones and points are
+// links into the list, so the graph navigates without JavaScript; the script
+// in deep-dive-graph.ts only adds state.
+import {
+  CORE_ZONE,
+  zoneColor,
+  type DeepDive,
+} from "../../lib/deep-dive/content";
+import { GRAPH, layoutGraph } from "../../lib/deep-dive/layout";
+
+interface Props {
+  dd: DeepDive;
+}
+
+const { dd } = Astro.props;
+const layout = layoutGraph(
+  dd.zones.map((z) => ({
+    id: z.id,
+    nodeCount: z.nodes.length,
+    short: z.short,
+  })),
+  dd.relations,
+  CORE_ZONE,
+);
+const pct = (v: number, of: number) => `${Math.round((v / of) * 1000) / 10}%`;
+// Points this close to the top show their name below them, not above.
+const TIP_BELOW = 90;
+---
+
+<div class="dd-graph">
+  <svg
+    viewBox={`0 0 ${GRAPH.width} ${GRAPH.height}`}
+    role="group"
+    aria-label={dd.ui.graphLabel}
+    data-dd-graph
+    data-core={CORE_ZONE}
+  >
+    <circle class="dd-nuc" cx={GRAPH.cx} cy={GRAPH.cy} r={GRAPH.nucleus} />
+    <g>
+      {layout.spokes.map((s) => (
+        <line
+          class="dd-sp"
+          x1={s.x1}
+          y1={s.y1}
+          x2={s.x2}
+          y2={s.y2}
+          data-spoke={s.zone}
+          style={`--zc:${zoneColor(dd.zoneById(s.zone))}`}
+        />
+      ))}
+    </g>
+    <g>
+      {layout.relations.map((r) => (
+        <path class="dd-r" d={r.d} data-a={r.from} data-b={r.to} />
+      ))}
+    </g>
+    <g>
+      {layout.zones.map((g) => {
+        const z = dd.zoneById(g.id);
+        return (
+          <g
+            class:list={["dd-zone", { "dd-core": g.core }]}
+            data-zone-group={g.id}
+            style={`--zc:${zoneColor(z)}`}
+          >
+            {g.points.map((p) => (
+              <line class="dd-m" x1={g.x} y1={g.y} x2={p.x} y2={p.y} />
+            ))}
+            <a
+              class="dd-hub"
+              href={`#${g.id}`}
+              data-zone={g.id}
+              aria-label={`${dd.ui.zone} ${z.number}: ${z.title}`}
+            >
+              <circle class="dd-halo" cx={g.x} cy={g.y} r={g.haloR} />
+              <circle class="dd-c" cx={g.x} cy={g.y} r={g.hubR} />
+              <text
+                class="dd-n"
+                x={g.label.x}
+                y={g.label.y - 5}
+                text-anchor={g.label.anchor}
+              >
+                {z.number}
+              </text>
+              <text
+                class="dd-t"
+                x={g.label.x}
+                y={g.label.y + 13}
+                text-anchor={g.label.anchor}
+              >
+                {z.short}
+              </text>
+            </a>
+            {g.points.map((p) => {
+              const node = z.nodes[p.index];
+              return (
+                <a
+                  class="dd-nd"
+                  href={`#${p.id}`}
+                  tabindex="-1"
+                  data-node={p.id}
+                  data-x={pct(p.x, GRAPH.width)}
+                  data-y={pct(p.y, GRAPH.height)}
+                  data-below={p.y < TIP_BELOW ? "" : undefined}
+                  data-tip-zone={z.short}
+                  data-tip-title={node?.title}
+                  aria-label={`${node?.title}. ${z.short}`}
+                >
+                  <circle class="dd-hit" cx={p.x} cy={p.y} r="16" />
+                  <circle class="dd-dot" cx={p.x} cy={p.y} r="6.5" />
+                  <text
+                    class="dd-num"
+                    x={p.numX}
+                    y={p.numY}
+                    text-anchor="middle"
+                    aria-hidden="true"
+                  >
+                    {p.index + 1}
+                  </text>
+                </a>
+              );
+            })}
+          </g>
+        );
+      })}
+    </g>
+  </svg>
+  <div class="dd-tip" aria-hidden="true" data-dd-tip>
+    <small></small>
+    <span></span>
+  </div>
+</div>
+
+<style is:global>
+  /* Values, states and timings from the approved deep-dive mock. Motion is
+     cut for reduced motion by the global rule in global.css. */
+  .dd-graph {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      rgb(255 255 255 / 0.025),
+      transparent 70%
+    );
+  }
+  .dd-graph svg {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Name of a point on hover or focus. Placed from the point's position in
+     the viewBox, kept inside the graph by clamp(). */
+  .dd-tip {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    max-width: 240px;
+    left: clamp(8px, calc(var(--x, 50%) - 120px), calc(100% - 248px));
+    top: calc(var(--y, 50%) - 58px);
+    padding: 7px 11px;
+    border-radius: 9px;
+    background: rgb(23 30 37 / 0.97);
+    border: 1px solid rgb(242 237 227 / 0.16);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--cream);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.15s,
+      transform 0.15s;
+  }
+  .dd-tip.below {
+    top: calc(var(--y, 50%) + 20px);
+  }
+  .dd-tip.on {
+    opacity: 1;
+    transform: none;
+  }
+  .dd-tip small {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--zc, var(--gold));
+  }
+
+  .dd-nuc {
+    fill: rgb(63 163 150 / 0.045);
+    stroke: rgb(63 163 150 / 0.35);
+    stroke-width: 1;
+  }
+  .dd-m {
+    stroke: rgb(242 237 227 / 0.13);
+    stroke-width: 1;
+    transition:
+      stroke 0.3s,
+      opacity 0.3s;
+  }
+  .dd-sp {
+    stroke: rgb(242 237 227 / 0.2);
+    stroke-width: 1.2;
+    transition:
+      stroke 0.3s,
+      opacity 0.3s,
+      stroke-width 0.3s;
+  }
+  .dd-sp.on {
+    stroke: var(--zc);
+    stroke-width: 2;
+    opacity: 1;
+  }
+  svg[data-zone] .dd-sp:not(.on) {
+    opacity: 0.4;
+  }
+  .dd-r {
+    fill: none;
+    stroke: rgb(242 237 227 / 0.17);
+    stroke-width: 1;
+    stroke-dasharray: 3 5;
+    transition:
+      stroke 0.3s,
+      opacity 0.3s,
+      stroke-width 0.3s;
+  }
+  .dd-r.zon {
+    stroke: rgb(242 237 227 / 0.34);
+  }
+  .dd-r.on {
+    stroke: var(--gold);
+    stroke-width: 1.6;
+    stroke-dasharray: none;
+    opacity: 1;
+  }
+
+  .dd-hub,
+  .dd-nd {
+    cursor: pointer;
+  }
+  /* Focus is drawn on the circles below, not as a box around the link. */
+  .dd-graph a:focus-visible {
+    outline: none;
+  }
+  .dd-halo,
+  .dd-c,
+  .dd-dot {
+    fill: var(--zc);
+  }
+  .dd-halo {
+    opacity: 0.14;
+    transition: opacity 0.3s;
+  }
+  .dd-c {
+    transition: r 0.25s;
+  }
+  .dd-hub text {
+    paint-order: stroke;
+    stroke: #12181d;
+    stroke-width: 5px;
+    stroke-linejoin: round;
+  }
+  .dd-t {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 15px;
+    fill: var(--cream);
+  }
+  .dd-core .dd-t {
+    font-size: 17px;
+  }
+  .dd-n {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    fill: var(--muted);
+  }
+  .dd-hit {
+    fill: transparent;
+  }
+  .dd-dot {
+    transition:
+      r 0.2s,
+      opacity 0.3s;
+  }
+  .dd-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--cream);
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+  }
+  .dd-hub:focus-visible .dd-c,
+  .dd-nd:focus-visible .dd-dot {
+    stroke: var(--teal);
+    stroke-width: 2.5;
+  }
+  .dd-nd:hover .dd-dot,
+  .dd-nd:focus-visible .dd-dot {
+    r: 9;
+  }
+
+  /* A zone is active. */
+  svg[data-zone] .dd-zone:not(.on) .dd-dot {
+    opacity: 0.5;
+  }
+  svg[data-zone] .dd-zone:not(.on) .dd-m {
+    opacity: 0.35;
+  }
+  svg[data-zone] .dd-zone:not(.on) .dd-hub {
+    opacity: 0.8;
+  }
+  .dd-zone.on .dd-m {
+    stroke: var(--zc);
+    opacity: 0.55;
+  }
+  .dd-zone.on .dd-halo {
+    opacity: 0.3;
+  }
+  .dd-zone.on .dd-num {
+    opacity: 0.9;
+  }
+
+  /* A point is active; its peers get a ring. */
+  .dd-nd.sel .dd-dot {
+    r: 9.5;
+    stroke: var(--cream);
+    stroke-width: 2;
+  }
+  svg[data-zone] .dd-zone .dd-nd.peer .dd-dot {
+    opacity: 1;
+    stroke: var(--gold);
+    stroke-width: 1.5;
+  }
+</style>

@@ -28,8 +28,9 @@ Single dark theme by choice.
 Bronze, silver and gold are structural, not decorative: they stand for the
 three layers of the data architecture in the main case.
 
-The deep-dive graph adds one hue per zone: `#3FA396`, `#4E9BC7`, `#D4A643`,
-`#E9A0B0`, `#59A14F`, `#B07AA1`, `#A66B3F`, `#9FA8AD`.
+The deep-dive graph adds one hue per zone, as tokens `--zone-1` to `--zone-8`:
+`#3FA396`, `#4E9BC7`, `#D4A643`, `#E9A0B0`, `#59A14F`, `#B07AA1`, `#A66B3F`,
+`#9FA8AD`.
 
 **Removed by D005:** the red and grey tokens and the two extra typefaces that
 styled the chat demo after a third party's brand. The demo now uses the tokens
@@ -72,7 +73,18 @@ Scale in production: `h1` `clamp(2.2rem, 5.6vw, 4.3rem)` at line-height 1.08;
   content sits 55 px from a band's line. Same values at every width (D022)
 - After a jump, a section's label sits 55 px below the fixed bar, which is
   61 px high at every width (`--bar-height`)
-- Breakpoints in use: 560, 640, 760, 820, 860 px (not consolidated yet)
+- Breakpoints in use: 560, 640, 760, 820, 860, 899, 980 px (not consolidated
+  yet). The bar's links collapse into the menu at 899 px and below (D025)
+- Wide content, for the deep-dive graph and its panel: 1240 px
+  (`--content-width-wide`)
+
+## Bar
+
+- Fixed, 61 px high at every width. Brand, section links, language switch
+- One highlighted item, the deep dive: gold text in a thin gold pill, the same
+  language as the active language in the switch
+- Between 1000 and 900 px its gaps and side padding shrink with the window;
+  below 360 px so does the name
 
 ## Motion in production
 
@@ -107,6 +119,23 @@ they happen (D020). Without support for scroll-driven animations, or under
   label and the number; sections already passed in `--cream-dim` with gold
   dots, the current one in gold with a halo, the rest in `--muted`; a gold line
   runs down the dots as far as the current section
+
+## Deep dive
+
+- Graph: a static SVG, 1000 × 720. The architecture at the centre inside a
+  nucleus of radius 112, its points on a ring; seven zones on an ellipse
+  around it, each with its points fanned outwards. Zone 14 px, core 19 px,
+  point 6.5 px, each with a soft halo
+- Lines: zone to point, thin; zone to nucleus, lit in the zone's colour when
+  the zone is active; point to point, dashed and faint at rest, solid gold
+  when one of its ends is selected
+- States: at rest everything is lit; with a zone active the others dim and its
+  points take numbers; with a point active its linked points take a gold ring
+- Panel beside the graph, below it at 980 px and under; at 760 px and under a
+  reduced graph with the eight zones replaces both
+- Card on the home page: gold tint, thin gold border, full width of the case
+  content. Navigation between pages cross-fades for 0.35 s; the card takes
+  0.55 s to become the page header
 
 ## Voice
 

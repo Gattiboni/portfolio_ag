@@ -1,0 +1,456 @@
+{
+  "meta": {
+    "title": "Central de Dados RH & MãoChat: o mapa do projeto",
+    "description": "Mapa navegável de uma plataforma de dados de RH em produção e do seu copiloto: o que foi construído, por que assim, e o detalhe técnico de cada decisão."
+  },
+  "page": {
+    "back": "← portfólio",
+    "eyebrow": "Caso em produção · plataforma de dados de RH",
+    "titleHtml": "Central de Dados RH &amp; MãoChat: <em>o mapa</em> do que foi construído e por quê.",
+    "facts": [
+      {
+        "value": "~100",
+        "label": "releases em 6 meses"
+      },
+      {
+        "value": "231",
+        "label": "decisões registradas, com o porquê"
+      },
+      {
+        "value": "15 · ~190",
+        "label": "schemas e tabelas em PostgreSQL"
+      },
+      {
+        "value": "~1.150",
+        "label": "testes automatizados"
+      }
+    ]
+  },
+  "nav": {
+    "label": "Deep dive"
+  },
+  "card": {
+    "kicker": "Deep dive · 8 zonas",
+    "title": "Como a plataforma foi construída, e por que assim",
+    "text": "Um mapa pra percorrer: uma linha simples por ideia, detalhe técnico só se você pedir."
+  },
+  "ui": {
+    "graphLabel": "Mapa do projeto: a arquitetura no centro e sete zonas em volta",
+    "miniLabel": "As oito zonas. Toque numa para abrir na lista",
+    "howTo": "Como ler",
+    "hint": "A arquitetura no centro, sete zonas em volta, {points} pontos. Escolha uma zona ou clique direto num ponto.",
+    "zone": "Zona",
+    "allZones": "← todas as zonas",
+    "backTo": "← {zone}",
+    "linkedTo": "Ligado a",
+    "restsOn": "Apoia-se na arquitetura",
+    "supports": "O que se apoia nela",
+    "showDetail": "Ver detalhe técnico",
+    "hideDetail": "Fechar detalhe técnico",
+    "detail": "detalhe técnico",
+    "listTitle": "O mesmo conteúdo, em lista",
+    "filter": "filtrar (ex.: SQL)",
+    "filterLabel": "Filtrar a lista",
+    "expandAll": "expandir tudo",
+    "collapseAll": "recolher tudo"
+  },
+  "zones": [
+    {
+      "id": "arch",
+      "number": "01",
+      "title": "Arquitetura & infraestrutura",
+      "short": "Arquitetura",
+      "plain": "Onde o sistema roda e como ele é mantido sob controle.",
+      "lead": "Um banco de dados central, um servidor de API e uma interface web, hospedados em serviços gerenciados pra que uma pessoa só consiga operar tudo sem virar equipe de infraestrutura.",
+      "nodes": [
+        {
+          "title": "Stack em uma frase",
+          "plain": "PostgreSQL 18 gerenciado, API em FastAPI (Python), front em React. API e banco na mesma região pra latência mínima.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Migração de uma plataforma de prototipagem pra hospedagem gerenciada (Railway + Vercel) em abril, sem parar o produto. O motivo: controle de rede, de credenciais e de deploy. Na migração o Security Group do banco saiu de <code>0.0.0.0/0</code> pra uma allowlist nominal de IPs.</p><p><b>Por que não Kubernetes, Airflow, etc.?</b> Time de um. Deploy por push, cron nativo e zero ops eram requisito, não preferência. O desenho não impede trocar depois: nada na aplicação depende do provedor.</p>"
+        },
+        {
+          "title": "15 schemas, cada um com um papel",
+          "plain": "Bronze (cru), silver (limpo), gold (pronto pra tela) e mais 12 schemas de apoio: referência, governança, auditoria, staging, arquivo.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><ul><li><b>bronze</b>: payload da fonte como chegou (jsonb), nunca editado. É o que permite reprocessar do zero.</li><li><b>silver</b>: normalizado, tipado, com chave de negócio e dedup.</li><li><b>gold</b>: métricas e dimensões prontas. Regra fixa: <b>o front lê gold; a API nunca lê silver</b>.</li><li><b>ref</b>: de-paras (regional, centro de custo canônico com <code>is_current</code>), calendário.</li><li><b>governance</b>: log de rebuild, snapshots de contexto do copiloto, registro de módulos.</li><li><b>audit / analytics</b>: telemetria de uso e de interações.</li><li><b>archive</b>: módulos aposentados continuam consultáveis, sem poluir o resto.</li></ul>"
+        },
+        {
+          "title": "Mudança de schema governada",
+          "plain": "Toda alteração no banco passa por um fluxo de simulação → aprovação → execução → carimbo. Nada é alterado 'na mão'.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>DDL executado via ferramenta MCP com <code>dry_run</code> obrigatório, aprovação explícita, execução e um <code>SELECT</code> de confirmação registrado em governança. O Decision Log guarda o porquê; o carimbo guarda o quando e o quê.</p><p>Trade-off assumido: sem arquivos de migration versionados no repositório. Pra um time de um, migration file vira teatro; a trilha de auditoria fica no banco e no log de decisões. Se o time crescer, o passo natural é gerar migrations a partir do carimbo.</p>"
+        },
+        {
+          "title": "Uma fonte só pra rotas, menu e permissões",
+          "plain": "O menu, o mapa da aplicação e quem pode ver o quê são derivados de uma única árvore declarada. Um lugar pra mudar, zero divergência.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p><code>ROUTES_TREE</code> é a fonte única: router do front, sidebar, App Map e checagem de permissão no backend são todos gerados dela. Permissões concedidas em lote carregam <code>granted_via</code>, então dá pra responder \"por que essa pessoa vê essa tela\" sem investigar.</p>"
+        },
+        {
+          "title": "Refatoração do monólito",
+          "plain": "O arquivo principal da API tinha 4.528 linhas. Hoje tem 102, com 15 módulos de rotas e 31 endpoints mortos removidos.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Como achar endpoint morto sem quebrar nada: cruzamento de três listas (o que o front chama, o que a API expõe, o que a telemetria registra como acessado). O que não aparecia em nenhuma, saiu. Dessa fase nasceu a \"regra de ouro\" do projeto: telemetria e auditoria são best-effort e <b>nunca</b> derrubam uma resposta ao usuário.</p>"
+        }
+      ]
+    },
+    {
+      "id": "pipe",
+      "number": "02",
+      "title": "Pipeline de dados",
+      "short": "Pipeline de dados",
+      "plain": "Como o dado entra, é limpo e vira número confiável.",
+      "lead": "Cada sistema de origem tem um 'adaptador' que só sabe copiar o dado cru. Limpeza e regra de negócio acontecem depois, uma vez só, no mesmo lugar. Trocar uma fonte não obriga a reescrever nada.",
+      "nodes": [
+        {
+          "title": "Fontes integradas",
+          "plain": "Sistema de ponto (API), suíte corporativa de chat (planilhas, bases, bot, login), ERP, base de ponto legada, extrações de BI, centro de custo corporativo, ATS de recrutamento, arquivos de benefícios.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Cada fonte escreve exclusivamente em bronze. Regional canônica vem do cadastro corporativo de centro de custo, não do ERP, porque era o que o negócio reconhecia como verdade. Histórico de centro de custo com <code>is_current</code> em vez de sobrescrever.</p>"
+        },
+        {
+          "title": "Orquestrador próprio de rebuild",
+          "plain": "Cada etapa declara do que depende; o sistema calcula a ordem sozinho e registra começo e fim de cada uma.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Decorator <code>@rebuild_step</code> com dependências explícitas, ordenação topológica (Kahn) e sentinelas <code>_started</code>/<code>_complete</code> numa tabela de governança. Sentinela aberta sem fechamento = rebuild abortado, visível no painel. Execução parcial por <code>trigger_source</code>: uma fonte atualizada dispara só os passos que ela afeta.</p><p><b>Por que não Airflow?</b> Dezenas de passos num único Postgres; um DAG em Python com log em tabela é inspecionável por SQL e não adiciona um serviço pra manter.</p>"
+        },
+        {
+          "title": "Ingestão idempotente",
+          "plain": "Rodar duas vezes dá o mesmo resultado. Uma das bases caiu de 5,5 milhões pra 930 mil linhas só deduplicando na chave certa; o rebuild foi de 78 s pra 28 s.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Padrão único em todas as ingestões: <code>COPY</code> pra tabela temporária, depois <code>UPSERT</code> na chave primária de negócio. Lotes com <code>execute_values</code> (page_size 500 a 1000).</p>"
+        },
+        {
+          "title": "Sincronização do ponto: de 4 horas pra 18 segundos",
+          "plain": "O processo original gravava registro por registro. O novo busca por janela de tempo, guarda o bloco inteiro e explode em SQL.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Array inteiro da API cai em bronze como jsonb; <code>jsonb_array_elements</code> explode em uma query; watermark guarda o último período consumido. Backfill histórico passou de horas pra minutos fazendo bronze-only e deixando a transformação pro SQL.</p>"
+        },
+        {
+          "title": "Falha honesta",
+          "plain": "Se um pedaço do dado não veio, o processo falha e avisa. Ele nunca 'termina' com buraco silencioso.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>A API de ponto trunca respostas grandes: chunking de no máximo 2 dias por chamada. Chunk que falha propaga o erro e derruba o job (sentinela fica aberta). Reprocessamento por janela com <code>DELETE</code> da janela antes do insert, pra não deixar registro fantasma; janela de competência aberta pra o mês corrente. Janela D-1 no fuso de Brasília com sobreposição.</p>"
+        },
+        {
+          "title": "Concorrência",
+          "plain": "Dois usuários abrindo o mesmo painel não disparam dois reprocessamentos.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Advisory locks do Postgres por chave de etapa, tanto no ETL on-read quanto na ingestão. Pool de conexões dimensionado quando o front passou a paralelizar chamadas (React Query).</p>"
+        },
+        {
+          "title": "Dado honesto e fórmula é lei",
+          "plain": "Nulo não é zero. Toda métrica tem uma fórmula assinada por quem é dono da regra no negócio; se ninguém assinou, ela não entra.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Exemplos: presença ponderada é Σpresente/Σesperado, nunca média de percentuais; regional é soma exata dos centros de custo; batimento de ponto é calculado por origem de marcação; elegibilidade usa data de admissão e demissão. Cada métrica em gold declara <code>law</code> e <code>source_of_truth</code> na camada semântica.</p>"
+        }
+      ]
+    },
+    {
+      "id": "mao",
+      "number": "03",
+      "title": "MãoChat, o copiloto",
+      "short": "MãoChat",
+      "plain": "Pergunta em português (ou mandarim), resposta com o número certo e o SQL que gerou ele.",
+      "lead": "O modelo de linguagem nunca 'chuta' um número. Ele escreve uma consulta, o sistema valida e executa com permissão só de leitura, e a resposta é escrita a partir das linhas que voltaram. Tudo fica registrado, e um humano decide o que o sistema aprende.",
+      "nodes": [
+        {
+          "title": "O caminho de uma pergunta",
+          "plain": "Duas chamadas ao modelo por pergunta: uma pra planejar a consulta, outra pra escrever a resposta a partir do resultado real.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><ul><li><b>Planejamento</b> via tool-use: o modelo devolve SQL + intenção.</li><li><b>Validação no servidor</b>: única sentença; denylist por word-boundary; comentários removidos antes de validar (fechou um vetor real); gate de custo via <code>EXPLAIN</code>; <code>LIMIT</code> injetado.</li><li><b>Execução</b> com role somente-leitura por requisição, nunca a conexão da aplicação.</li><li><b>Gate de PII</b> por sensibilidade de coluna antes de qualquer linha ir pro modelo.</li><li><b>Síntese</b> ancorada nas linhas: sem linha, sem número.</li></ul><p>Provedor: Anthropic (Claude). O copiloto foi migrado de provedor sem mudar a arquitetura: validação, execução e síntese não dependem de quem gera o texto.</p>"
+        },
+        {
+          "title": "Camada semântica curada",
+          "plain": "Em vez de dar ao modelo 190 tabelas e torcer, ele recebe 12 tabelas descritas por humanos, as fórmulas oficiais e 27 exemplos verificados.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>YAML versionado em repositório: tabelas, métricas com <code>law</code>/<code>source_of_truth</code>, exemplos pergunta→SQL verificados, grafo de conceitos de negócio. Conceitos entram no prompt <b>antes</b> das tabelas, porque o erro típico é de vocabulário, não de SQL. Snapshot noturno do contexto (cron) grava o que o modelo \"viu\" em cada data, então qualquer resposta é auditável contra o contexto do dia.</p><p><b>E RAG com vetores?</b> Domínio pequeno e fechado: curadoria rende mais que similaridade. Recuperação é meio; o que garante qualidade é o contrato do contexto (o que entra, de onde vem, quem aprovou) e a validação do que sai. Vetor entra quando a escala pedir, sem mudar o resto.</p>"
+        },
+        {
+          "title": "Telemetria e feedback",
+          "plain": "Cada interação grava 48 campos (pergunta, plano, SQL, custo, latência por etapa, linhas, nota do usuário). Sem isso não existe melhoria nem controle de custo.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Tabela de auditoria de interações + avaliação por estrelas. Prompt caching na parte estável do contexto. Tudo best-effort: se a telemetria falhar, a resposta sai mesmo assim.</p>"
+        },
+        {
+          "title": "Loop de aprendizado com gate humano",
+          "plain": "O sistema propõe o que aprender com as perguntas reais; uma pessoa aprova, rejeita ou revisa com orientação; só então entra na base curada.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Minerador em dois estágios (classificador → propositor) sobre as interações. Gate humano com três saídas. O que entra é um pacote determinístico (exemplo verificado ou conceito), nunca um prompt reescrito por IA. Digest diário no chat corporativo às 05:30 com o que foi proposto e decidido. Isso é governança de LLM na prática: aprendizado com trilha de auditoria.</p>"
+        },
+        {
+          "title": "Beta cedo, de propósito",
+          "plain": "Foi liberado em beta antes de estar 'pronto', porque as perguntas reais eram o dado que faltava.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>A calibração v2 veio do beta: pré-checagem de privilégio (o modelo não tenta responder o que o usuário não pode ver), evidência honesta (\"não encontrei\" em vez de aproximação), histórico de sessão no prompt, freshness de negócio e um bloco de relógio (que dia é, qual competência está aberta).</p>"
+        },
+        {
+          "title": "Um incidente de custo, contado sem vergonha",
+          "plain": "Um job de análise de grupos entrou em loop e gastou cerca de USD 20 por dia durante 16 dias antes de ser pego.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Causa: reprocessar itens que já tinham falhado, indefinidamente. Correção estrutural, não pontual: tabela de memória de resultado (o que já foi tentado e como terminou), teto de custo por execução e alerta diário. Vale pra qualquer job que chame LLM.</p>"
+        }
+      ]
+    },
+    {
+      "id": "auto",
+      "number": "04",
+      "title": "Auto-descoberta: App Map, Dependency Map e MOAS",
+      "short": "Auto-descoberta",
+      "plain": "O sistema descreve a si mesmo. A documentação não envelhece porque não é escrita à mão.",
+      "lead": "O medo clássico é o produto que nasce com documentação bonita e seis meses depois ninguém sabe mais o que depende do quê. Aqui o mapa da aplicação, o mapa de dependências e o inventário de nomes são gerados a partir do próprio código e do próprio banco, a cada mudança. O que está na tela é o que existe.",
+      "nodes": [
+        {
+          "title": "App Map",
+          "plain": "Mapa de todas as telas, rotas e permissões, gerado da mesma árvore que alimenta o menu. Se uma tela existe, ela está no mapa; se não está no mapa, não existe.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Uma árvore de rotas declarada no front (<code>ROUTES_TREE</code>) é a fonte única de três consumidores: o roteador, o menu lateral e o App Map. Adicionar uma página é adicionar um nó; menu e mapa refletem sozinhos. O backend completa o mapa com as rotas da API, o inventário do banco, as integrações e as variáveis de ambiente, e grava cada geração como snapshot.</p>"
+        },
+        {
+          "title": "Dependency Map",
+          "plain": "Quem alimenta quem, e se está em dia: fonte → tabela final. Dá pra responder 'essa fonte atualizou e o painel não?' sem abrir código.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Uma tabela declarativa de governança lista cada par fonte → tabela final e como ele é disparado (upload, sincronização ou manual). A cada varredura o sistema descobre no catálogo do banco qual coluna de data cada tabela tem, compara a última carga da fonte com o último rebuild registrado e classifica o par: em dia, defasado ou desconhecido. Tabela vazia é \"desconhecido\", nunca \"em dia\". Cada varredura vira um snapshot auditável.</p>"
+        },
+        {
+          "title": "MOAS (Mother of All Selects)",
+          "plain": "Um conjunto de SELECTs somente leitura que bate direto no catálogo do banco e gera o dicionário de dados inteiro, sem nada escrito à mão. Roda em auto-descoberta: se o schema mudou, o dicionário muda junto.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Inventário auto-descoberto: schemas, tabelas, colunas, tipos e comentários vêm do próprio Postgres a cada run. Regra que nasceu daqui e virou princípio do projeto: <b>MOAS-first vale pra código</b>. Um nome (coluna, rota, métrica) é conferido na origem antes de ser usado, nunca inventado no meio do caminho. O snapshot noturno de contexto do MãoChat parte desse dicionário, então o copiloto nunca \"conhece\" uma tabela que não existe mais.</p><p class=\"lab\">Um trecho, resumido</p><pre><code>SELECT n.nspname          AS schema_name,\n       c.relname          AS object_name,\n       c.reltuples::bigint AS estimated_rows\nFROM pg_class c\nJOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname NOT IN ('pg_catalog', 'information_schema')\n  AND c.relkind IN ('r', 'p', 'v', 'm')\nORDER BY 1, 2;</code></pre><p>Nenhum nome de tabela escrito: o que existir no banco amanhã aparece sozinho.</p>"
+        },
+        {
+          "title": "Registro de módulos com liga/desliga",
+          "plain": "Cada módulo se registra e pode ser desligado sem apagar nada. Um módulo inteiro foi congelado e arquivado dessa forma.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Registry com <code>is_enabled</code> por módulo; filas e jobs consultam o registry antes de rodar. O módulo de avaliação 360 foi construído, congelado e movido pro schema <code>archive</code>: histórico consultável, zero custo de manutenção.</p>"
+        }
+      ]
+    },
+    {
+      "id": "mot",
+      "number": "05",
+      "title": "Mão de obra terceirizada (MOT)",
+      "short": "Terceirizados",
+      "plain": "O módulo com mais integração e mais gente envolvida: presença diária de terceiros, requisições e reconciliação com fornecedores.",
+      "lead": "Quem está presente hoje, em qual centro de custo, por qual fornecedor, e o que foi pedido versus o que foi entregue. Piloto num centro de triagem, desenhado pra escalar pra todos.",
+      "nodes": [
+        {
+          "title": "O fato central",
+          "plain": "Uma tabela: pessoa × centro de custo × dia. Levou seis rodadas de investigação da API e um censo pra achar o endpoint que dava esse dado corretamente.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Fornecedor é atributo do vínculo, não da pessoa: alguém pode trocar de fornecedor sem virar outra pessoa no sistema. O endpoint certo exigia um contexto de credencial específico da API de ponto.</p>"
+        },
+        {
+          "title": "Os 14 dias de 401",
+          "plain": "Uma credencial no contexto errado fez a integração responder 'não autorizado' por duas semanas, em silêncio.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Correção em duas partes: credencial certa e um fallback que <b>grita</b> no primeiro ciclo. Lição repetida no projeto inteiro: falha silenciosa de integração é o pior tipo de falha.</p>"
+        },
+        {
+          "title": "Reconciliação: 74 minutos → 12 segundos",
+          "plain": "O motor que compara pedido com entrega deixou de rodar linha a linha.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Reescrita em lote com <code>execute_values</code>. Mesma lógica, mesma saída, 370× mais rápido.</p>"
+        },
+        {
+          "title": "Fluxo operacional",
+          "plain": "Requisições com estados bem definidos, portal do fornecedor, avisos bilíngues (português/mandarim), prazo de 4 h antes do turno.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Máquina de estados explícita; painel construído contract-first (o contrato da API veio antes da tela). Iterações com a operação removeram o campo \"urgência\" e tornaram o turno obrigatório: menos ambiguidade, menos pedido errado.</p>"
+        }
+      ]
+    },
+    {
+      "id": "mods",
+      "number": "06",
+      "title": "Outros módulos",
+      "short": "Outros módulos",
+      "plain": "Amplitude: conformidade, passivos, ponto, benefícios, recrutamento, SST.",
+      "lead": "A mesma fundação serviu pra várias frentes diferentes de RH sem reescrever a base. Isso é o teste real de uma arquitetura.",
+      "nodes": [
+        {
+          "title": "Conformidade trabalhista",
+          "plain": "Cota de aprendiz (Lei 10.097) calculada com a regra assinada pelo DP: 5% com arredondamento pra cima, piso de 7.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Daqui nasceu o padrão <code>/api/v1/</code> e a refatoração do pool de conexões.</p>"
+        },
+        {
+          "title": "Passivos trabalhistas",
+          "plain": "Planilhas do ERP viram série histórica por competência, com drill de centro de custo até pessoa.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Competência detectada do próprio arquivo; dedup por hash de arquivo e de conteúdo; substituição por centro de custo; nome completo resolvido no cadastro.</p>"
+        },
+        {
+          "title": "Monitor de ponto",
+          "plain": "Primeiro módulo entregue por outra pessoa do time, sem reescrita da base.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Camada silver enxuta, headcount esperado a partir do cadastro, dedup do payload da API. Prova de que a arquitetura aguenta um segundo desenvolvedor.</p>"
+        },
+        {
+          "title": "Resumo de KPI",
+          "plain": "Manipulação direta do XML de planilhas: 1 segundo por arquivo, detecção dinâmica de layout.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Leitura com calamine; escrita mexendo no XML do xlsx em vez de recriar a planilha.</p>"
+        },
+        {
+          "title": "Recrutamento (ATS → requisição)",
+          "plain": "PDF do ATS vira requisição estruturada. Vocabulário é traduzido ou fica em branco: nunca chutado.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Extração de tabelas com pdfplumber; dedup em três camadas.</p>"
+        },
+        {
+          "title": "Login corporativo e benefícios",
+          "plain": "Login pelo chat corporativo (OAuth) com auto-provisionamento; página pública de benefícios com telemetria de uso.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Gate de acesso = departamento ∪ whitelist. Reset de senha por mensagem no chat corporativo com token hasheado. Identificador opaco no front no lugar de CPF.</p>"
+        }
+      ]
+    },
+    {
+      "id": "princ",
+      "number": "07",
+      "title": "Princípios",
+      "short": "Princípios",
+      "plain": "As regras que não mudam, mesmo sob pressão de prazo.",
+      "lead": "Três coisas são inegociáveis e o resto é conversa.",
+      "nodes": [
+        {
+          "title": "Incrementalidade",
+          "plain": "Nenhuma decisão pode ser impedimento óbvio pra próxima.",
+          "deepHtml": "<p class=\"lab\">Na prática</p><p>Migração de plataforma sem parar o produto; refatoração do monólito feita antes de adicionar módulo novo, não depois.</p>"
+        },
+        {
+          "title": "Modularidade",
+          "plain": "Plugar e desplugar qualquer fonte sem reescrever o núcleo.",
+          "deepHtml": "<p class=\"lab\">Na prática</p><p>Adaptadores só escrevem em bronze; um módulo inteiro foi arquivado sem tocar nos outros.</p>"
+        },
+        {
+          "title": "Zero dívida técnica",
+          "plain": "Sem gambiarra, sem 'depois a gente resolve'.",
+          "deepHtml": "<p class=\"lab\">Na prática</p><p>O incidente de custo virou memória de resultado + teto + alerta, não um try/except. O 401 virou fallback que grita, não um retry.</p>"
+        },
+        {
+          "title": "Anti-falso-verde",
+          "plain": "Teste que passa sem testar é pior que teste vermelho. Processo que 'termina' com buraco é falha.",
+          "deepHtml": "<p class=\"lab\">Na prática</p><p>UI testada em duas camadas: checagens binárias por agente no browser e julgamento humano sobre o que a tela diz.</p>"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "number": "08",
+      "title": "Como foi construído",
+      "short": "Como foi construído",
+      "plain": "Arquiteto humano, agente de código como executor, gates entre os dois.",
+      "lead": "Eu desenho, decido e reviso; um agente de código escreve. Nada entra sem passar por dois portões: revisão do plano antes de tocar em arquivo, e teste com diff antes de integrar. O Decision Log com 231 entradas é o subproduto desse método.",
+      "nodes": [
+        {
+          "title": "Gates α e β",
+          "plain": "α: o plano é revisado antes de qualquer arquivo ser tocado. β: diff e testes antes de integrar. O agente nunca faz commit.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Instruções de implementação escritas em formato fixo (contexto, escopo, fora de escopo, critérios de aceite). Cláusula anti-contaminação: uma coisa por vez, sem \"aproveitar pra arrumar\" o que não foi pedido. Duas a três sessões em paralelo quando as frentes são independentes (backend / front, ETL / auditoria).</p>"
+        },
+        {
+          "title": "Documentação como parte do release",
+          "plain": "Changelog e Decision Log fecham junto com o código, não depois. Por isso existem 231 decisões e ~100 releases rastreáveis.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Cada decisão registra contexto, alternativas, decisão, racional, responsável e status. É o que permite a um segundo desenvolvedor entender por que algo é como é, sem perguntar.</p>"
+        },
+        {
+          "title": "Desde quando",
+          "plain": "Trabalho com agentes de código desde o fim de 2023, quando ainda era mato. O método de gates veio de errar cedo.",
+          "deepHtml": "<p class=\"lab\">Detalhe técnico</p><p>Confiança no código gerado não é padrão: é conquistada por teste. O papel do humano sobe de nível (arquitetura, regra de negócio, revisão), não desaparece.</p>"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "arch-3",
+      "to": "auto-0",
+      "why": "O App Map é uma projeção da mesma árvore de rotas que monta o menu."
+    },
+    {
+      "from": "auto-2",
+      "to": "mao-1",
+      "why": "O contexto do copiloto parte do inventário real do banco."
+    },
+    {
+      "from": "auto-0",
+      "to": "mao-1",
+      "why": "O mapa de telas entra no contexto que o copiloto recebe toda noite."
+    },
+    {
+      "from": "auto-1",
+      "to": "mao-1",
+      "why": "O estado de cada fonte entra no contexto: o copiloto sabe o que está defasado."
+    },
+    {
+      "from": "pipe-6",
+      "to": "mao-1",
+      "why": "Cada métrica curada declara a fórmula oficial e a fonte da verdade."
+    },
+    {
+      "from": "mao-2",
+      "to": "mao-3",
+      "why": "O que o sistema propõe aprender sai das interações gravadas."
+    },
+    {
+      "from": "mao-5",
+      "to": "princ-2",
+      "why": "O incidente virou memória de resultado, teto e alerta, não um try/except."
+    },
+    {
+      "from": "mot-1",
+      "to": "princ-2",
+      "why": "O 401 virou um fallback que grita, não um retry."
+    },
+    {
+      "from": "mot-1",
+      "to": "auto-2",
+      "why": "O erro apareceu numa rodada do MOAS feita pra outra frente."
+    },
+    {
+      "from": "pipe-4",
+      "to": "princ-3",
+      "why": "Processo que termina com buraco é falha: o mesmo princípio no dado e no teste."
+    },
+    {
+      "from": "pipe-0",
+      "to": "princ-1",
+      "why": "Cada fonte tem um adaptador que só escreve na camada crua."
+    },
+    {
+      "from": "auto-3",
+      "to": "princ-1",
+      "why": "Um módulo inteiro foi arquivado sem tocar nos outros."
+    },
+    {
+      "from": "arch-4",
+      "to": "princ-0",
+      "why": "A refatoração veio antes do módulo novo, não depois."
+    },
+    {
+      "from": "arch-0",
+      "to": "princ-0",
+      "why": "A plataforma mudou de casa sem parar o produto."
+    },
+    {
+      "from": "arch-2",
+      "to": "build-1",
+      "why": "O Decision Log guarda o porquê; o carimbo no banco guarda o quando e o quê."
+    },
+    {
+      "from": "mods-2",
+      "to": "build-1",
+      "why": "Foi o registro das decisões que deixou outra pessoa entregar sem perguntar."
+    },
+    {
+      "from": "build-0",
+      "to": "princ-3",
+      "why": "O portão β confere em duas camadas: checagem por agente e julgamento humano."
+    },
+    {
+      "from": "pipe-2",
+      "to": "mot-2",
+      "why": "O mesmo padrão de escrita em lote, aplicado ao motor de reconciliação."
+    }
+  ],
+  "coreRelations": [
+    {
+      "zone": "pipe",
+      "why": "Cada fonte escreve na camada crua; limpeza e regra acontecem uma vez só, nas camadas seguintes."
+    },
+    {
+      "zone": "mao",
+      "why": "O copiloto só lê a camada pronta, com permissão de leitura, nunca pela conexão da aplicação."
+    },
+    {
+      "zone": "auto",
+      "why": "Os três mapas são lidos do próprio banco e da árvore de rotas, não escritos à parte."
+    },
+    {
+      "zone": "mot",
+      "why": "Presença, requisição e reconciliação usam as mesmas camadas do resto da plataforma."
+    },
+    {
+      "zone": "mods",
+      "why": "A mesma fundação serviu a várias frentes sem reescrever a base."
+    },
+    {
+      "zone": "princ",
+      "why": "Os três princípios são o critério de cada decisão de arquitetura."
+    },
+    {
+      "zone": "build",
+      "why": "Toda mudança de arquitetura passa pelos dois portões e fica registrada."
+    }
+  ]
+}

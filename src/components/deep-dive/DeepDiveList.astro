@@ -1,0 +1,240 @@
+---
+// The same content as the graph, always on the page: eight zones, each with
+// its lead and points; each point with its plain line and the technical
+// detail folded. Native <details>, so it opens and closes without script.
+// Anchors are the content ids ("pipe", "pipe-2"), the same in both locales.
+// The filter and the expand-all button need deep-dive-list.ts and stay
+// hidden without it.
+import { nodeId, zoneColor, type DeepDive } from "../../lib/deep-dive/content";
+
+interface Props {
+  dd: DeepDive;
+}
+
+const { dd } = Astro.props;
+const { ui } = dd;
+---
+
+<div class="dd-list">
+  <div class="dd-list-head">
+    <h2 id="dd-list-title">{ui.listTitle}</h2>
+    <div class="dd-tools" data-dd-tools hidden>
+      <input
+        type="search"
+        placeholder={ui.filter}
+        aria-label={ui.filterLabel}
+      />
+      <button
+        type="button"
+        data-expand={ui.expandAll}
+        data-collapse={ui.collapseAll}
+      >
+        {ui.expandAll}
+      </button>
+    </div>
+  </div>
+  <div>
+    {dd.zones.map((z) => (
+      <details class="dd-zone-item" id={z.id} style={`--zc:${zoneColor(z)}`}>
+        <summary>
+          <span class="dd-znum">{z.number}</span>
+          <span>
+            <b>{z.title}</b>
+            <span class="dd-p">{z.plain}</span>
+          </span>
+          <svg class="dd-ch" viewBox="0 0 8 10" aria-hidden="true">
+            <path d="M1.5 1 6.5 5 1.5 9" />
+          </svg>
+        </summary>
+        <div class="dd-zin">
+          <p class="dd-lead">{z.lead}</p>
+          {z.nodes.map((n, i) => (
+            <div class="dd-item" id={nodeId(z.id, i)}>
+              <h3>{n.title}</h3>
+              <p>{n.plain}</p>
+              <details>
+                <summary>{ui.detail}</summary>
+                <div class="dd-deep" set:html={n.deepHtml} />
+              </details>
+            </div>
+          ))}
+        </div>
+      </details>
+    ))}
+  </div>
+</div>
+
+<style is:global>
+  /* Values from the approved deep-dive mock. */
+  .dd-list {
+    max-width: var(--content-width);
+  }
+  .dd-list-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .dd-list-head h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  .dd-tools {
+    display: flex;
+    gap: 8px;
+  }
+  .dd-tools[hidden] {
+    display: none;
+  }
+  .dd-tools input {
+    font-size: 0.8rem;
+    color: var(--cream);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    padding: 8px 16px;
+    width: 210px;
+  }
+  .dd-tools input::placeholder {
+    color: var(--muted);
+  }
+  .dd-tools button {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .dd-tools button:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* Arriving by anchor (graph without script, reduced graph, a pasted link)
+     leaves the target whole and clear of the fixed bar. */
+  .dd-zone-item,
+  .dd-item {
+    scroll-margin-top: calc(var(--bar-height) + 24px);
+  }
+  .dd-zone-item {
+    border-top: 1px solid var(--line);
+  }
+  .dd-zone-item:last-of-type {
+    border-bottom: 1px solid var(--line);
+  }
+  .dd-zone-item > summary {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 44px 1fr 20px;
+    gap: 10px;
+    align-items: baseline;
+    padding: 18px 4px;
+    cursor: pointer;
+  }
+  .dd-zone-item > summary::-webkit-details-marker {
+    display: none;
+  }
+  .dd-zone-item .dd-znum {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--zc);
+    letter-spacing: 0.1em;
+  }
+  .dd-zone-item > summary b {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.15rem;
+  }
+  .dd-zone-item .dd-p {
+    display: block;
+    color: var(--muted);
+    font-size: 0.84rem;
+  }
+  .dd-ch {
+    width: 8px;
+    height: 10px;
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.4;
+    transition: transform 0.2s;
+  }
+  .dd-zone-item[open] > summary .dd-ch {
+    transform: rotate(90deg);
+  }
+  .dd-zin {
+    padding: 0 4px 22px 58px;
+    display: grid;
+    gap: 16px;
+  }
+  .dd-lead {
+    color: var(--cream-dim);
+    font-size: 0.9rem;
+    max-width: 760px;
+  }
+  .dd-item h3 {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    gap: 9px;
+    align-items: baseline;
+  }
+  .dd-item h3::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--zc);
+    flex: none;
+    transform: translateY(-1px);
+  }
+  .dd-item > p {
+    color: var(--cream-dim);
+    font-size: 0.88rem;
+    max-width: 760px;
+    padding-left: 16px;
+  }
+  .dd-item details {
+    padding-left: 16px;
+    margin-top: 6px;
+  }
+  .dd-item summary {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    width: max-content;
+  }
+  .dd-item summary:hover {
+    color: var(--gold);
+  }
+  .dd-item .dd-deep {
+    max-width: 760px;
+    margin-top: 10px;
+  }
+  .dd-hide {
+    display: none;
+  }
+  @media (max-width: 760px) {
+    .dd-zin {
+      padding-left: 14px;
+    }
+    .dd-zone-item > summary {
+      grid-template-columns: 34px 1fr 16px;
+    }
+    .dd-tools input {
+      width: 150px;
+    }
+  }
+</style>

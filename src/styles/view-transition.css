@@ -1,0 +1,21 @@
+/*
+ * Effect E (D020): the main case's card on the home page becomes the header
+ * of the deep-dive page, with the browser's cross-document view transition.
+ * Both documents opt in; where the feature is missing, or the visitor asks
+ * for reduced motion, it is an ordinary navigation. Every navigation between
+ * pages that load this file gets the root cross-fade. Timings from the
+ * approved motion mock.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+::view-transition-group(deep-dive) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}

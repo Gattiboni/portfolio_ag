@@ -1,15 +1,21 @@
 ---
-// First-visit language detection for "/" only (D004). Runs inline in <head>
-// before first paint. A stored "pt" choice, or no stored choice and a browser
-// language starting with "pt", sends the visitor to the Portuguese page;
-// anything else stays. Keeps the query string and the anchor, and replaces
-// the history entry so Back does not loop. /pt/ never redirects: an explicit
-// URL wins. A "lang=en" query parameter is an explicit choice too: the switch
-// adds it when it cannot store the choice, so it wins over everything here.
+// First-visit language detection for every page of the default locale (D004).
+// BaseLayout includes it, inline in <head>, before first paint. A stored "pt"
+// choice, or no stored choice and a browser language starting with "pt",
+// sends the visitor to the same page in Portuguese; anything else stays.
+// Keeps the query string and the anchor, and replaces the history entry so
+// Back does not loop. Portuguese pages never redirect: an explicit URL wins.
+// A "lang=en" query parameter is an explicit choice too: the switch adds it
+// when it cannot store the choice, so it wins over everything here.
 // Plain inline script, so it behaves the same on any static host.
 import { getRelativeLocaleUrl } from "astro:i18n";
+import { site } from "../config/site";
+import { pathWithinLocale } from "../i18n/routes";
 
-const target = getRelativeLocaleUrl("pt");
+const target = getRelativeLocaleUrl(
+  "pt",
+  pathWithinLocale(Astro.url.pathname, site.defaultLocale),
+);
 ---
 
 <script is:inline define:vars={{ target }}>

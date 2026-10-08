@@ -562,11 +562,127 @@ supersedes the "section rhythm" line of D015's parity for good.
 
 ---
 
+## D023 — 2026-10-08 · Deep dive: the architecture at the centre, three levels, and no line without a reason
+
+**Context.** The main case deserved more than a section: a second page that a
+recruiter can skim and an engineer can dig into. The starting material was a
+private map of the project with eight zones, a force-directed canvas and, on
+every node, a plain line and a technical note. That canvas placed nodes at
+random on each load, hung decorative satellites on them and joined the zones
+with lines that meant nothing in particular.
+
+**Alternatives.** Scope: (a) the whole map, (b) a cut of it. Reading: (c) all
+text visible, (d) three levels chosen by the visitor. Graph: (e) keep the
+canvas simulation, (f) a static SVG with fixed positions computed at build.
+Lines: (g) decorative edges allowed, (h) every line is a relation declared in
+the data, with its reason. Shape: (i) the eight zones on a ring, (j) the
+architecture zone at the centre with the other seven around it.
+
+**Decision.** (a), (d), (f), (h) and (j). Eight zones and 39 points. Level one
+is the graph with zone labels and no paragraph; a click opens one plain line
+and the point's links; the technical detail opens only on request. Three kinds
+of line exist and no other: a zone to its points, a zone to the central
+nucleus (seven, each with a sentence saying why it rests on the architecture),
+and point to point (18, each with its reason). A list with the same content is
+always on the page; on phones a reduced graph with the eight zones opens the
+list. Without JavaScript every zone and point of the graph is a real link to
+its item in the list.
+
+**Rationale.** (j) was Alan's correction on the first mock: the architecture
+is the core of the method, and everything else spreads from it. (h) is the
+difference between a picture of a graph and a graph: a visitor who clicks a
+line gets a sentence, and a line that cannot be explained is not drawn. It
+made the picture sparser, 47 marks instead of about 180, and that was
+accepted. (f) makes the graph the same on every load, focusable, and present
+in the HTML before any script runs. (d) keeps the rule that long text is the
+visitor's choice: the SQL guardrails are two clicks away, not zero.
+
+Content lives in one file per language with the same shape. The build fails if
+the two languages differ in zones, points or relations, or if a relation points
+at something that does not exist.
+
+**Owner.** Alan (scope, the centre, every relation validated one by one);
+assistant (levels, declared relations, content in both languages); code agent
+(geometry, validation, focus and keyboard). **Status.** Closed.
+
+---
+
+## D024 — 2026-10-08 · Only what can be traced is published
+
+**Context.** Before the map's text went public, each of its claims was checked
+against the project's own changelog, its decision log and the source files
+that could be consulted. Most held. Four did not, and two counts could no
+longer be verified at all.
+
+**Alternatives.** (a) Publish the text as written. (b) Correct what the
+sources contradict and drop what cannot be checked.
+
+**Decision.** (b). Corrected: the AI provider was not chosen "after a
+comparison", it was adopted after a migration validated in production, and the
+copilot moved to it later without a change of architecture; the dependency map
+does not reuse the orchestrator's graph, it reads a declarative table of
+source and target pairs and discovers freshness by itself; the old time-clock
+sync wrote one record at a time, it did not query one person at a time; the
+catalogue inventory is a set of read-only queries, not a single one, and it is
+self-discovered rather than free of every hard-coded name. Dropped: two counts
+of business domains that neither the logs nor the code support. The inventory
+keeps the name its author gave it, Mother of All Selects, with an abridged
+excerpt of the real query.
+
+**Rationale.** The page is read by people who can tell. A corrected claim is
+usually the better story anyway: "moved providers without touching the
+architecture" says more than "compared providers". Names of the ERP, the chat
+suite and the prototyping platform are left out under D005; the hosting and AI
+providers stay, because they describe the stack and identify nobody.
+
+**Owner.** Assistant (the checks); Alan (the files, and the final word on each
+sentence). **Status.** Closed. The home page still carries one of the dropped
+counts; it goes with the copy in Phase 7.
+
+---
+
+## D025 — 2026-10-08 · Reaching the deep dive: a highlighted item in the bar, and what that moved
+
+**Context.** The page was first reachable only through a card at the end of
+the main case. Alan's reaction on seeing it built: too good to be hidden
+behind a card. He wanted it in the bar, between the main case and the
+projects, opening the page directly instead of scrolling to the card.
+
+**Alternatives.** (a) The card only. (b) A sub-item of the main case. (c) An
+item of its own in the bar.
+
+**Decision.** (c), and the card stays. The list that feeds the bar (D021) now
+holds two kinds of entry: sections, and links to other pages. The new item is
+declared between the main case and the projects, is the bar's one highlighted
+item (gold, in a thin pill, like the active language), and is not a section:
+the page index still has six.
+
+Three things moved because of it. The bar's links now collapse into the menu
+at 899 px and below, not 820 (this supersedes the number in D016): with six
+items the Portuguese bar needs about 900 px even after its gaps shrink, and it
+had in fact been overflowing unseen between 821 and about 864 px. The language
+rule of D004 now applies to every page of the default language, through one
+implementation, and the switch leads to the same page in the other language.
+And navigating between pages cross-fades for 0.35 s wherever the browser
+supports cross-document view transitions; the card additionally becomes the
+page header, but only when the card itself is the link being followed, so that
+nothing flies in from off screen when the visitor comes from the bar.
+
+**Rationale.** One list still decides what the bar shows and in what order.
+The transition is CSS only; restricting the card's morph to its own click was
+the one way to do it without scripting the navigation, and it costs the
+reverse morph on the way back, which mostly happened off screen anyway.
+
+**Owner.** Alan (the item and its place); code agent (the two kinds of entry,
+the measurements, the card rule). **Status.** Closed.
+
+---
+
 ## Open
 
 - **Text over the hero video.** How much copy sits on the video before the fade.
-- **Deep dive: scope, disclosure levels and graph.** Whether every edge in the
-  graph must represent a relation declared in the data.
+- **Section index on the deep-dive page.** Left out on purpose; decide after
+  living with the page.
 - **Headline and title.** One wording across site, deep dive and CV.
 - **Secondary projects.** How many cards stay, and whether the gallery stays
   while its images are small.
