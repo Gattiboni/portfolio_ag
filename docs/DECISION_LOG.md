@@ -448,10 +448,91 @@ is sensitive.
 
 ---
 
+## D020 — 2026-10-08 · Motion: three moments tied to scroll, chosen on a mock
+
+**Context.** The brief asked for more impact while staying minimal. Five
+candidate moments were built as a navigable mock on the real page: (A) the
+point of view lights up word by word as it is read, (B) the revenue figure
+drawn as two bars, (C) the data travelling along a rail through the bronze,
+silver and gold cards, (D) the secondary projects scrolling sideways, (E) a
+card expanding into the deep-dive page.
+
+**Alternatives.** Any subset of the five. For the implementation: (a) an
+animation library, (b) scroll listeners in JavaScript, (c) CSS scroll-driven
+animations with a static fallback, as the hero already does (D018).
+
+**Decision.** A, B and C are built now. D is dropped: it did not behave well in
+either of the two browsers Alan tried it in. E is approved and ships with the
+page it leads to, in Phase 6. All three use (c). No number was fixed as a cap
+on animated moments.
+
+**Rationale.** Each of the three says something the text already says, in the
+place where it says it: reading, growth, and the three layers. None is
+decoration added to a section. With (c) there is no dependency and no scroll
+listener, and where the feature is missing (Firefox stable) or the visitor asks
+for reduced motion the content is simply shown: plain text, both bars at full
+size, the whole rail, the cards as they were.
+
+Two implementation choices worth keeping. The cards' lit state is one
+registered number animated from 0 to 1, and border, glow and opacity are
+derived from it in ordinary rules; animating the border itself would have
+overridden the hover colours for good. And every scroll-driven animation is
+written in longhand properties, because the build minifier folds
+`animation-timeline` into the `animation` shorthand and browsers reject the
+result.
+
+The mock showed "before" and "after" labels on the bars. They were left out:
+they are new copy, and copy belongs to Phase 7.
+
+**Owner.** Alan chose on the mock; assistant specified; code agent built.
+**Status.** Closed for A, B and C. E is carried to Phase 6.
+
+---
+
+## D021 — 2026-10-08 · A section index instead of a back-to-top button, fed by one list of sections
+
+**Context.** Alan asked for a back-to-top control that follows the scroll. The
+motion mock carried a small progress indicator next to it. His reaction was
+that a bare number meant nothing; what would be useful is knowing how many
+sections exist and where one is among them.
+
+**Alternatives.** (a) A plain floating back-to-top button. (b) An index built
+by a script that scans the page for sections. (c) An index rendered on the
+server from the same list that composes the page. For going back to the top:
+(d) a line inside the index panel, (e) a separate button beside it.
+
+**Decision.** (c) and (e). The home page now declares its content sections
+once: id, component, label and whether the section appears in the bar. The
+page, the bar and the index are all rendered from that list. The index is a
+round button showing the current section's number inside a ring that fills
+with the page, a separate ↑ button, and a native popover with the six
+sections as real links. The list starts at the first content section; hero,
+marquee and footer are not sections. The footer's back-to-top link is removed.
+
+**Rationale.** With (b) the bar's links stay a second hand-written list and
+the index a third; a section could exist on the page and be missing from
+either. With (c) that cannot happen, adding a section is one entry, and the
+list works without JavaScript because it is in the HTML. (e) was Alan's call
+on the mock: more intuitive than hiding the action inside a panel.
+
+The current section is the one under the middle of the screen, found with an
+`IntersectionObserver`. There is still no scroll listener in the project. The
+last section is too short to reach the middle, so when the footer is fully on
+screen the last section becomes the current one. The marquee sits between two
+sections without being one: it is attached to the entry it precedes, as an
+optional decorative block that reaches neither the bar nor the index.
+
+**Owner.** Alan (the idea and the choices on the mock); assistant (the single
+list); code agent (the end-of-page rule and the marquee field).
+**Status.** Closed.
+
+---
+
 ## Open
 
-- **Motion budget.** How many high-impact animated moments the site allows.
-  Decided on top of a navigable mock, not in the abstract.
+- **Section rhythm.** Five of the six sections carry no vertical padding, an
+  accident inherited from the previous site and reproduced by the port (D015).
+  Standardising it changes the rendered layout, so it is a decision.
 - **Text over the hero video.** How much copy sits on the video before the fade.
 - **Deep dive: scope, disclosure levels and graph.** Whether every edge in the
   graph must represent a relation declared in the data.

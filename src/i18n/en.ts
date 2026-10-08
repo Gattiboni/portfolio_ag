@@ -28,6 +28,10 @@ export const en = {
     lightboxPrev: "Previous",
     lightboxNext: "Next",
     chatDemo: "Illustrative demo of MãoChat, a natural-language data copilot",
+    sectionIndex: "Sections on this page",
+    backToTop: "Back to top",
+    // Placeholders {n}, {total} and {label} are filled in by page-index.ts.
+    sectionPosition: "Section {n} of {total}: {label}",
   },
   nav: {
     brandHtml: "Alan <em>Gattiboni</em>",
@@ -283,7 +287,6 @@ export const en = {
   },
   footer: {
     location: "São Paulo, Brazil",
-    backToTop: "back to top ↑",
   },
 };
 

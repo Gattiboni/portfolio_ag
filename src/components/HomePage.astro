@@ -2,7 +2,7 @@
 // The home page, composed once and rendered by both locale routes.
 import BaseLayout from "../layouts/BaseLayout.astro";
 import type { Locale } from "../config/site";
-import { getDictionary } from "../i18n";
+import { getDictionary, type Dictionary } from "../i18n";
 import Background from "./Background.astro";
 import Nav from "./Nav.astro";
 import Hero from "./Hero.astro";
@@ -15,6 +15,7 @@ import Projects from "./Projects.astro";
 import Marquee from "./Marquee.astro";
 import Contact from "./Contact.astro";
 import Footer from "./Footer.astro";
+import PageIndex from "./PageIndex.astro";
 import Lightbox from "./Lightbox.astro";
 
 interface Props {
@@ -23,6 +24,44 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getDictionary(locale);
+
+interface Section {
+  // Anchor id, shared by both locales (published links depend on it).
+  id: string;
+  Component: (props: { t: Dictionary; id: string }) => unknown;
+  label: string;
+  inNav: boolean;
+  // A decorative band rendered right before the section. It is not a section
+  // of its own, so it never appears in the bar or the index.
+  Before?: (props: { t: Dictionary }) => unknown;
+}
+
+// The one list of content sections. The page renders them from here, in this
+// order; the bar takes the ones marked inNav; the index takes all of them.
+const sections: readonly Section[] = [
+  { id: "sobre", Component: About, label: t.nav.about, inNav: true },
+  { id: "ajudo", Component: Help, label: t.nav.help, inNav: true },
+  {
+    id: "manifesto",
+    Component: Manifesto,
+    label: t.manifesto.eyebrow,
+    inNav: false,
+  },
+  { id: "case", Component: Case, label: t.nav.case, inNav: true },
+  { id: "projetos", Component: Projects, label: t.nav.projects, inNav: true },
+  {
+    id: "contato",
+    Component: Contact,
+    label: t.nav.contact,
+    inNav: true,
+    Before: Marquee,
+  },
+];
+
+const navLinks = sections
+  .filter((s) => s.inNav)
+  .map((s) => ({ href: `#${s.id}`, label: s.label }));
+const indexItems = sections.map((s) => ({ id: s.id, label: s.label }));
 ---
 
 <BaseLayout
@@ -33,21 +72,25 @@ const t = getDictionary(locale);
 >
   <slot name="head" slot="head" />
   <Background />
-  <Nav t={t} locale={locale} />
-  <Hero t={t} />
+  <Nav t={t} locale={locale} links={navLinks} />
+  <Hero t={t} cueHref={`#${sections[0]?.id ?? ""}`} />
   <HeroLead t={t} />
-  <About t={t} />
-  <Help t={t} />
-  <Manifesto t={t} />
-  <Case t={t} />
-  <Projects t={t} />
-  <Marquee t={t} />
-  <Contact t={t} />
+  {sections.map(({ id, Component, Before }) => (
+    <>
+      {Before && <Before t={t} />}
+      <Component t={t} id={id} />
+    </>
+  ))}
   <Footer t={t} />
+  <PageIndex t={t} items={indexItems} />
   <Lightbox t={t} />
 </BaseLayout>
 
 <script>
   import { initReveal } from "../scripts/reveal";
+  import { initManifestoWords } from "../scripts/manifesto-words";
+  // Wraps the point of view's words before the reveal observes .rise, so the
+  // two paragraphs it takes over are never handed to the reveal.
+  initManifestoWords();
   initReveal();
 </script>

@@ -3,13 +3,15 @@ import type { Dictionary } from "../i18n";
 
 interface Props {
   t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
 }
 
-const { t } = Astro.props;
+const { t, id } = Astro.props;
 const m = t.manifesto;
 ---
 
-<section class="wrap manifesto" id="manifesto">
+<section class="wrap manifesto" id={id}>
   <div class="sec-eyebrow rise">{m.eyebrow}</div>
   <p class="rise" set:html={m.p1Html} />
   <p class="rise" set:html={m.p2Html} />
@@ -40,5 +42,33 @@ const m = t.manifesto;
   }
   .manifesto .t {
     color: var(--teal);
+  }
+
+  /* Effect A: the words light up as the paragraphs cross the screen. The
+     wrapper and the .w spans exist only when src/scripts/manifesto-words.ts
+     ran, which it does only under these same two conditions. If reduced
+     motion is switched on later, the words simply show at full strength.
+     Longhands only, as in Hero.astro: the minifier folds a timeline into
+     the animation shorthand, which browsers then reject. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .manifesto-read {
+        view-timeline: --manifesto-read block;
+      }
+      .manifesto .w {
+        opacity: 0.16;
+        animation-name: manifesto-word-lit;
+        animation-duration: auto;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: --manifesto-read;
+        animation-range: cover var(--word-from) cover var(--word-to);
+      }
+    }
+  }
+  @keyframes manifesto-word-lit {
+    to {
+      opacity: 1;
+    }
   }
 </style>

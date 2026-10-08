@@ -4,13 +4,15 @@ import type { Dictionary } from "../i18n";
 
 interface Props {
   t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
 }
 
-const { t } = Astro.props;
+const { t, id } = Astro.props;
 const c = t.contact;
 ---
 
-<section class="wrap contact" id="contato">
+<section class="wrap contact" id={id}>
   <div class="sec-eyebrow rise">{c.eyebrow}</div>
   <h2 class="rise" set:html={c.titleHtml} />
   <p class="sec-sub rise">{c.sub}</p>

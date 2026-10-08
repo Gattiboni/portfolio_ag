@@ -37,7 +37,7 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 - [x] Menu where the links vanish, at 820 px and below (D016)
 - [x] Content visible without JavaScript (D017)
 - [x] β: new against production at 1440, 768 and 390 px, both languages
-- [ ] Single commit
+- [x] Single commit
 
 ## Phase 4 · Hero video
 
@@ -52,16 +52,17 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 - [x] β: code agent, browser agent on a clean build, Alan's eye on desktop
 - [ ] β on a real phone and on Safari, before launch
 
-## Phase 5 · Motion
+## Phase 5 · Motion and page index
 
-- [ ] Navigable mock with five or six candidate moments
-- **⚑ Motion budget**, decided on the mock
-- [ ] Build the approved ones, one at a time, each with a static fallback.
-      Native CSS first; a library only with a recorded decision
-- [ ] One back-to-top control: floating, appears after the first fold, on both
-      pages, keyboard accessible
-- [ ] β: no horizontal scroll, no visible frame drops on an ordinary laptop,
-      visible focus everywhere
+- [x] Navigable mock with five candidate moments; three chosen, one dropped,
+      one carried to Phase 6 (D020)
+- [x] Point of view lit word by word, revenue metric drawn as bars, rail
+      through the three layers. CSS only, each with a static fallback
+- [x] Section index with progress ring and a separate back-to-top button, in
+      place of the footer link (D021)
+- [x] One list of sections feeding the page, the bar and the index
+- [x] β: code agent, browser agent on the built files, Alan's eye on desktop
+- [ ] Small round before Phase 6: the items marked "next round" below
 
 ## Phase 6 · Deep dive
 
@@ -69,6 +70,8 @@ A second page that explains the main case in depth, generic and anonymised.
 Text is the visitor's choice, never the default.
 
 - **⚑ Scope, disclosure levels and whether the graph only draws declared relations**
+- [ ] The card of the main case expands into this page with a view transition
+      (effect E, D020)
 - [ ] Three levels: a graph with labels and no paragraphs; one plain line per
       node on click; technical detail on request
 - [ ] Every figure checked against the project's own changelog and decision log
@@ -106,12 +109,12 @@ has a phase.
       choosing English returned to `/pt/` (fixed in Phase 4)
 - [x] The language redirect dropped the query string (fixed in Phase 4)
 - [ ] Chat demo text renders at weight 300; the previous site showed 400 because
-      its 300 never loaded (Phase 5)
+      its 300 never loaded (next round)
 - [ ] Lightbox does not trap keyboard focus and does not cap image height
-      (Phase 5)
-- [ ] Brand wraps to two lines between 330 and 359 px (Phase 5)
-- [ ] Back-to-top exists only in the footer; it should follow the scroll
-      (Phase 5, already planned there)
+      (next round)
+- [ ] Brand wraps to two lines between 330 and 359 px (next round)
+- [x] Back-to-top exists only in the footer; it should follow the scroll
+      (done in Phase 5, D021)
 - [ ] Dashes used as stylistic punctuation in the copy, against the voice rule
       (Phase 7)
 - [ ] Untranslated strings: the language group label and the chat status line
@@ -122,7 +125,7 @@ has a phase.
 ## Found during the hero work
 
 - [ ] On phones the contrast layer greys the base of the flame. Try a smaller,
-      higher video instead of a scrim over it (Phase 5)
+      higher video instead of a scrim over it (next round)
 - [ ] Largest contentful paint is the brand in the bar, at 2.3 to 2.7 s in a
       clean lab run on slow 4G. Font preload and the built-in fonts option
       (D012) are the levers (Phase 8)
@@ -135,6 +138,18 @@ has a phase.
       replaced (Phase 7 or 8)
 - [ ] `favicon.ico` returns 404, the only console message (Phase 8, already
       planned)
+
+## Found during the motion work
+
+- [ ] Vertical spacing between sections is uneven and often too tight: only the
+      main case has padding of its own, the other five sections have none, so
+      one section's last line touches the next one's label. Inherited from the
+      previous site. Review and standardise (next round; a decision, see the
+      open list)
+- [ ] On phones, at the very end of the page, the index control sits over the
+      footer line (next round, with the spacing)
+- [ ] The bars over the revenue figure carry no labels. Decide with the copy
+      whether they need any (Phase 7)
 
 ## Later
 

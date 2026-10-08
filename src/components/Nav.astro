@@ -6,18 +6,11 @@ import type { Dictionary } from "../i18n";
 interface Props {
   t: Dictionary;
   locale: Locale;
+  // The bar's share of the section list in HomePage.astro, in page order.
+  links: readonly { href: string; label: string }[];
 }
 
-const { t, locale } = Astro.props;
-
-// Anchor ids are shared by both locales (published links depend on them).
-const links = [
-  { href: "#sobre", label: t.nav.about },
-  { href: "#ajudo", label: t.nav.help },
-  { href: "#case", label: t.nav.case },
-  { href: "#projetos", label: t.nav.projects },
-  { href: "#contato", label: t.nav.contact },
-];
+const { t, locale, links } = Astro.props;
 
 const langs = [
   {

@@ -3,16 +3,18 @@ import type { Dictionary } from "../i18n";
 
 interface Props {
   t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
 }
 
-const { t } = Astro.props;
+const { t, id } = Astro.props;
 const h = t.help;
 // Staggered reveal, as in production.
 const delay = (i: number) =>
   i === 0 ? undefined : `transition-delay:${(i * 0.07).toFixed(2)}s`;
 ---
 
-<section class="wrap" id="ajudo">
+<section class="wrap" id={id}>
   <div class="sec-head">
     <div class="sec-eyebrow rise">{h.eyebrow}</div>
     <h2 class="rise" set:html={h.titleHtml} />

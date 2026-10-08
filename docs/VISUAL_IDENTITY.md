@@ -80,6 +80,32 @@ Scale in production: `h1` `clamp(2.2rem, 5.6vw, 4.3rem)` at line-height 1.08;
 - Marquee of stack names, 36 s loop
 - Everything is disabled under `prefers-reduced-motion`
 
+## Motion added in the rebuild
+
+All three are tied to scroll, in CSS, and mean something in the place where
+they happen (D020). Without support for scroll-driven animations, or under
+`prefers-reduced-motion`, the static version is shown.
+
+- Point of view: words go from 0.16 to full opacity one after the other as the
+  two paragraphs cross the screen
+- Revenue metric: a bronze bar at 10% of the width and a gold bar that grows
+  from 10% to 100%, 14 px high, above the figure
+- Main case: a 1 px rail above the three cards, drawn left to right in a
+  bronze, silver, gold gradient with a point of light at its tip; each card
+  goes from 0.35 opacity to full, with a border and a soft glow in its layer's
+  colour, when the rail reaches it. At 760 px and below there is no rail and
+  each card lights as it enters the screen
+
+## Page index
+
+- Fixed 22 px from the bottom right corner, shown after the first screen
+- A 48 px round button: section number in mono, two digits, inside a 2 px gold
+  ring that fills with the page; a 38 px ↑ button to its left
+- Panel 250 px wide above the button: one row per section with a dot, the
+  label and the number; sections already passed in `--cream-dim` with gold
+  dots, the current one in gold with a halo, the rest in `--muted`; a gold line
+  runs down the dots as far as the current section
+
 ## Voice
 
 Minimal, with impact placed deliberately. Affirmative sentences. No dash used as

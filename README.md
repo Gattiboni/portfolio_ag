@@ -8,11 +8,13 @@ production.
 version, a single hand-uploaded HTML file. This repository holds its
 replacement. That site was first ported here with parity, measured against
 production at three widths in both languages (D015). On top of that base the
-hero now opens with a looping video that never blocks the first paint (D018). A
-preview of this repository is deployed at
+hero now opens with a looping video that never blocks the first paint (D018),
+three moments of the page move with the scroll (D020), and a section index
+shows where the visitor is and jumps anywhere (D021). A preview of this
+repository is deployed at
 [portfolio-ag-ten.vercel.app](https://portfolio-ag-ten.vercel.app). The domain
-still points at the previous site and moves at launch. What comes next (motion,
-a deep-dive page, copy) is in [docs/ROADMAP.md](docs/ROADMAP.md).
+still points at the previous site and moves at launch. What comes next (a
+deep-dive page, copy) is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Why the repository is public
 
@@ -83,7 +85,7 @@ warnings.
 ```
 portfolio_ag/
 ├── src/
-│   ├── components/           # One per section, composed by HomePage
+│   ├── components/           # One per section; HomePage holds the list
 │   ├── config/site.ts        # Contact details, links, locales. One place.
 │   ├── i18n/                 # en.ts sets the shape, pt.ts must match it
 │   ├── layouts/              # BaseLayout: lang, canonical, hreflang, meta

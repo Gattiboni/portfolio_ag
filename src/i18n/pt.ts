@@ -25,6 +25,9 @@ export const pt: Dictionary = {
     lightboxNext: "Próxima",
     chatDemo:
       "Demonstração ilustrativa do MãoChat, copiloto de dados em linguagem natural",
+    sectionIndex: "Seções desta página",
+    backToTop: "Voltar ao topo",
+    sectionPosition: "Seção {n} de {total}: {label}",
   },
   nav: {
     brandHtml: "Alan <em>Gattiboni</em>",
@@ -279,6 +282,5 @@ export const pt: Dictionary = {
   },
   footer: {
     location: "São Paulo, Brasil",
-    backToTop: "voltar ao topo ↑",
   },
 };

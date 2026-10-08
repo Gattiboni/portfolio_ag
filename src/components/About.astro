@@ -3,13 +3,15 @@ import type { Dictionary } from "../i18n";
 
 interface Props {
   t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
 }
 
-const { t } = Astro.props;
+const { t, id } = Astro.props;
 const a = t.about;
 ---
 
-<section class="wrap" id="sobre">
+<section class="wrap" id={id}>
   <div class="sec-head">
     <div class="sec-eyebrow rise">{a.eyebrow}</div>
     <h2 class="rise" set:html={a.titleHtml} />
@@ -22,6 +24,11 @@ const a = t.about;
     </div>
     <div class="about-side">
       <div class="metric rise">
+        <!-- Effect B: the value drawn, before (10%) and after (100%). -->
+        <div class="metric-bars" aria-hidden="true">
+          <i class="metric-bar metric-bar-before"></i>
+          <i class="metric-bar metric-bar-after"></i>
+        </div>
         <b>{a.metric1Value}</b>
         <span>{a.metric1Label}</span>
       </div>
@@ -103,6 +110,54 @@ const a = t.about;
   .metric span {
     font-size: 0.8rem;
     color: var(--muted);
+  }
+
+  /* Effect B, values from the approved mock. Static by default: both bars
+     at their final size. 32px to the value = the mock's 14px row gap plus
+     the value's 18px top margin. */
+  .metric-bars {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .metric-bar {
+    display: block;
+    height: 14px;
+    border-radius: var(--radius-pill);
+    transform-origin: left center;
+  }
+  .metric-bar-before {
+    width: 10%;
+    background: var(--bronze);
+  }
+  .metric-bar-after {
+    width: 100%;
+    background: var(--gold);
+  }
+  /* The gold bar grows from the bronze one's length to full width while the
+     metric enters the screen. Scale, so not under reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .metric:has(> .metric-bars) {
+        view-timeline: --metric-drawn block;
+      }
+      .metric-bar-after {
+        animation-name: metric-bar-grow;
+        animation-duration: auto;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: --metric-drawn;
+        animation-range: entry 40% cover 48%;
+      }
+    }
+  }
+  @keyframes metric-bar-grow {
+    from {
+      transform: scaleX(0.1);
+    }
+    to {
+      transform: scaleX(1);
+    }
   }
   .about-facts {
     border-top: 1px solid var(--line);

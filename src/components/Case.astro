@@ -4,9 +4,11 @@ import ChatDemo from "./ChatDemo.astro";
 
 interface Props {
   t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
 }
 
-const { t } = Astro.props;
+const { t, id } = Astro.props;
 const c = t.case;
 // One tone per medallion layer, in data order.
 const tones = ["bronze", "silver", "gold"] as const;
@@ -16,7 +18,7 @@ const factDelay = (i: number) =>
   i === 0 ? undefined : `transition-delay:${(i * 0.08).toFixed(2)}s`;
 ---
 
-<section class="flagship" id="case">
+<section class="flagship" id={id}>
   <div class="wrap">
     <div class="sec-head">
       <div class="sec-eyebrow rise">{c.eyebrow}</div>
@@ -25,6 +27,11 @@ const factDelay = (i: number) =>
     </div>
 
     <div class="med-flow">
+      <!-- Effect C: the rail the data travels along, above 760px. -->
+      <div class="med-rail" aria-hidden="true">
+        <i></i>
+        <b></b>
+      </div>
       {c.layers.map((layer, i) => (
         <>
           {i > 0 && (
@@ -169,6 +176,174 @@ const factDelay = (i: number) =>
     .med-arrow {
       transform: rotate(90deg);
       padding: 8px 0;
+    }
+  }
+
+  /* Effect C: the data travels bronze, silver, gold. Values from the approved
+     mock. Above 760px a rail replaces the arrows; at 760px and below the
+     cards stack and the arrows stay. Static by default: the whole rail,
+     faint, and the cards as they always were. */
+  .med-flow {
+    position: relative;
+  }
+  .med-rail {
+    display: none;
+  }
+  @media (min-width: 761px) {
+    .med-flow {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 34px;
+    }
+    .med-arrow {
+      display: none;
+    }
+    .med-rail {
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -22px;
+      height: 1px;
+      background: var(--line);
+    }
+    .med-rail i {
+      position: absolute;
+      inset: 0;
+      transform-origin: left center;
+      background: linear-gradient(
+        90deg,
+        var(--bronze),
+        var(--silver) 50%,
+        var(--gold)
+      );
+      opacity: 0.35;
+    }
+    .med-rail b {
+      position: absolute;
+      top: -4px;
+      left: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--cream);
+      box-shadow: 0 0 16px 4px rgb(212 166 67 / 0.55);
+      opacity: 0;
+    }
+  }
+
+  /* How much a card is lit, 0 to 1. The scroll animation drives only this
+     number; border, glow and opacity are derived from it in ordinary rules.
+     That way the hover rules above, which are more specific, still win on a
+     lit card: an animation that set border-color itself would override the
+     hover's border for good. */
+  @property --med-lit {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 1;
+  }
+  @keyframes med-ignite {
+    from {
+      --med-lit: 0;
+    }
+    to {
+      --med-lit: 1;
+    }
+  }
+  @keyframes med-rail-draw {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes med-rail-travel {
+    0% {
+      left: 0;
+      opacity: 0;
+    }
+    6%,
+    94% {
+      opacity: 1;
+    }
+    100% {
+      left: 100%;
+      opacity: 0;
+    }
+  }
+
+  /* Scale and travel, so not under reduced motion: the static version stays.
+     Longhands only, as in Hero.astro: the minifier folds a timeline into the
+     animation shorthand, which browsers then reject. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .med.bronze {
+        --med-rgb: 166 107 63;
+      }
+      .med.silver {
+        --med-rgb: 159 168 173;
+      }
+      .med.gold {
+        --med-rgb: 212 166 67;
+      }
+      /* Lit from a dim start, instead of the fade-in from below: transform
+         none cancels the .rise offset (the hover lift is more specific and
+         still applies), and the opacity below outranks .rise and .rise.in. */
+      .med-flow .med {
+        transform: none;
+        border-color: color-mix(
+          in srgb,
+          rgb(var(--med-rgb) / 0.6) calc(var(--med-lit) * 100%),
+          var(--line)
+        );
+        box-shadow: 0 0 44px -14px
+          rgb(var(--med-rgb) / calc(0.55 * var(--med-lit)));
+        /* Stacked cards: each one lights up as it enters the screen, over
+           the slice the mock gives the first card. */
+        animation-name: med-ignite;
+        animation-duration: auto;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 55% entry 90%;
+      }
+      .med-flow .med.rise {
+        opacity: calc(0.35 + 0.65 * var(--med-lit));
+      }
+
+      /* Side by side: one timeline for the row; the rail draws across it and
+         each card lights up as the rail's tip reaches it. */
+      @media (min-width: 761px) {
+        .med-flow {
+          view-timeline: --med-flow block;
+        }
+        .med-flow .med {
+          animation-timeline: --med-flow;
+        }
+        .med-flow .med.silver {
+          animation-range: entry 95% cover 38%;
+        }
+        .med-flow .med.gold {
+          animation-range: cover 42% cover 56%;
+        }
+        .med-rail i {
+          opacity: 1;
+          animation-name: med-rail-draw;
+          animation-duration: auto;
+          animation-timing-function: linear;
+          animation-fill-mode: both;
+          animation-timeline: --med-flow;
+          animation-range: entry 55% cover 55%;
+        }
+        .med-rail b {
+          animation-name: med-rail-travel;
+          animation-duration: auto;
+          animation-timing-function: linear;
+          animation-fill-mode: both;
+          animation-timeline: --med-flow;
+          animation-range: entry 55% cover 55%;
+        }
+      }
     }
   }
   .flag-detail {

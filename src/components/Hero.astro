@@ -3,9 +3,11 @@ import type { Dictionary } from "../i18n";
 
 interface Props {
   t: Dictionary;
+  // Where the cue leads: the first section of the list in HomePage.astro.
+  cueHref: string;
 }
 
-const { t } = Astro.props;
+const { t, cueHref } = Astro.props;
 ---
 
 <!-- Full-screen hero: a media layer (poster, then video) under a text layer.
@@ -45,7 +47,7 @@ const { t } = Astro.props;
     </div>
   </div>
 
-  <a class="hero-cue" href="#sobre">
+  <a class="hero-cue" href={cueHref}>
     <span class="arrow">↓</span> {t.hero.cue}
   </a>
 </header>

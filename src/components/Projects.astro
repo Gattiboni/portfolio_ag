@@ -4,16 +4,18 @@ import Gallery from "./Gallery.astro";
 
 interface Props {
   t: Dictionary;
+  // Anchor id, supplied by the section list in HomePage.astro.
+  id: string;
 }
 
-const { t } = Astro.props;
+const { t, id } = Astro.props;
 const p = t.projects;
 // Staggered reveal, as in production.
 const delay = (i: number) =>
   i === 0 ? undefined : `transition-delay:${(i * 0.07).toFixed(2)}s`;
 ---
 
-<section class="wrap" id="projetos">
+<section class="wrap" id={id}>
   <div class="sec-head">
     <div class="sec-eyebrow rise">{p.eyebrow}</div>
     <h2 class="rise" set:html={p.titleHtml} />

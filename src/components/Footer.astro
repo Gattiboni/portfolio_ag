@@ -14,7 +14,6 @@ const { t } = Astro.props;
     <span>
       © <span id="yr"></span> {site.name} · <span>{t.footer.location}</span>
     </span>
-    <a href="#top">{t.footer.backToTop}</a>
   </div>
 </footer>
 
@@ -35,16 +34,9 @@ const { t } = Astro.props;
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
-  }
-  .foot,
-  .foot a {
     font-family: var(--font-mono);
     font-size: 0.72rem;
     color: var(--muted);
     letter-spacing: 0.05em;
-    text-decoration: none;
-  }
-  .foot a:hover {
-    color: var(--gold);
   }
 </style>

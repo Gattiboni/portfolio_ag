@@ -1,0 +1,351 @@
+---
+import type { Dictionary } from "../i18n";
+
+interface Props {
+  t: Dictionary;
+  // Every content section, in page order, from the list in HomePage.astro.
+  items: readonly { id: string; label: string }[];
+}
+
+const { t, items } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<!-- Page index. A round button shows the current section's number and, as a
+     ring, how far down the page the visitor is; it opens the list of sections
+     as a native popover. The smaller button beside it goes back to the top.
+     Without JavaScript the list still opens and every link works;
+     src/scripts/page-index.ts adds the current section and its label. -->
+<div class="pidx" data-page-index>
+  <a class="pidx-up" href="#top" aria-label={t.a11y.backToTop}>
+    <span aria-hidden="true">↑</span>
+  </a>
+  <button
+    class="pidx-ring"
+    type="button"
+    popovertarget="page-index"
+    aria-controls="page-index"
+    aria-label={t.a11y.sectionIndex}
+    data-index-button
+    data-position-label={t.a11y.sectionPosition}
+  >
+    <span data-index-number>01</span>
+  </button>
+</div>
+
+<div
+  class="pidx-panel"
+  id="page-index"
+  popover
+  role="navigation"
+  aria-label={t.a11y.sectionIndex}
+>
+  <ol>
+    {items.map((item, i) => (
+      <li>
+        <a href={`#${item.id}`}>
+          <i aria-hidden="true" />
+          <span>{item.label}</span>
+          <b aria-hidden="true">{pad(i + 1)}</b>
+        </a>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<!-- Without JavaScript and without scroll-driven animations nothing would
+     ever show the control, so it is simply visible. -->
+<noscript>
+  <style is:inline>
+    html .pidx {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+  </style>
+</noscript>
+
+<script>
+  import { initPageIndex } from "../scripts/page-index";
+  initPageIndex();
+</script>
+
+<style is:global>
+  /* Global, not scoped: page-index.ts toggles state classes on these nodes.
+     Values come from the approved mock, variant with a separate ↑ button. */
+
+  /* Above the content and the bar, below the lightbox (100). The open
+     mobile menu and this panel are popovers, in the top layer, and opening
+     one closes the other. */
+  .pidx {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Hidden over the hero. Where scroll-driven animations run, the rule
+       below shows it over the second half of the first fold. Elsewhere
+       page-index.ts adds .is-shown once the hero is nearly gone. */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease,
+      visibility 0.3s;
+  }
+  .pidx.is-shown {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .pidx-up,
+  .pidx-ring {
+    border-radius: 50%;
+    color: var(--cream);
+    cursor: pointer;
+  }
+  .pidx-up {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgb(242 237 227 / 0.16);
+    background: var(--panel);
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition:
+      color 0.25s,
+      border-color 0.25s;
+  }
+  .pidx-up:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* The ring is a conic fill over a faint full circle; the disc on top
+     leaves 2px of it showing. Without scroll-driven animations the fill
+     stays at 0%, which is the plain outline. */
+  @property --pidx-ring {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 0%;
+  }
+  .pidx-ring {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(
+      var(--gold) var(--pidx-ring),
+      rgb(242 237 227 / 0.14) 0
+    );
+  }
+  .pidx-ring::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: var(--panel);
+  }
+  .pidx-ring span {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+  .pidx-ring:hover span,
+  .pidx-ring[aria-expanded="true"] span {
+    color: var(--gold);
+  }
+  .pidx a.pidx-up:focus-visible,
+  .pidx-ring:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+    border-radius: 50%;
+  }
+
+  /* Panel. Hidden by default so browsers without popover support never
+     show it. Placed by fixed offsets that mirror the control's, so it stays
+     anchored to the button whatever the window size. */
+  .pidx-panel {
+    display: none;
+    position: fixed;
+    inset: auto 22px 82px auto;
+    width: 250px;
+    height: auto;
+    margin: 0;
+    padding: 10px;
+    overflow: visible;
+    color: var(--cream);
+    background: rgb(23 30 37 / 0.97);
+    border: 1px solid rgb(242 237 227 / 0.14);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.5);
+    transform-origin: 100% 100%;
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition:
+      opacity 0.2s ease,
+      transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+      display 0.25s allow-discrete,
+      overlay 0.25s allow-discrete;
+  }
+  .pidx-panel:popover-open {
+    display: block;
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    .pidx-panel:popover-open {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+
+  /* The list, with a line down the dots filled up to the current section
+     (--pidx-fill, 0 to 1, set by page-index.ts). */
+  .pidx-panel ol {
+    position: relative;
+    list-style: none;
+  }
+  .pidx-panel ol::before,
+  .pidx-panel ol::after {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: 16px;
+    width: 1px;
+  }
+  .pidx-panel ol::before {
+    bottom: 16px;
+    background: rgb(242 237 227 / 0.12);
+  }
+  .pidx-panel ol::after {
+    height: calc((100% - 32px) * var(--pidx-fill, 0));
+    background: var(--gold);
+    transition: height 0.35s ease;
+  }
+  .pidx-panel a {
+    position: relative;
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 9px;
+    border-radius: 9px;
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .pidx-panel a:hover {
+    background: rgb(242 237 227 / 0.05);
+    color: var(--cream);
+  }
+  .pidx-panel i {
+    position: relative;
+    z-index: 1;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid rgb(242 237 227 / 0.3);
+    justify-self: center;
+  }
+  .pidx-panel b {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .pidx-panel li.is-done a {
+    color: var(--cream-dim);
+  }
+  .pidx-panel li.is-done i,
+  .pidx-panel li.is-now i {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .pidx-panel li.is-now a {
+    color: var(--gold);
+  }
+  .pidx-panel li.is-now i {
+    box-shadow: 0 0 0 4px var(--gold-soft);
+  }
+
+  /* Scroll-driven: the control appears between 60% and 100% of the first
+     screen and the ring fills with the page. Longhands only, as in Hero.astro:
+     the minifier folds a timeline into the animation shorthand, which
+     browsers then reject. */
+  @supports (animation-timeline: scroll()) {
+    .pidx {
+      transition: none;
+      animation-name: pidx-show;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+      animation-range: 60vh 100vh;
+    }
+    .pidx-ring {
+      animation-name: pidx-ring-fill;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+    }
+    /* Reduced motion: the control fades in without moving, and the ring
+       keeps working, as an indicator. The global reduced motion rule forces
+       a 0.01ms duration, which would break a scroll-linked animation. */
+    @media (prefers-reduced-motion: reduce) {
+      .pidx,
+      .pidx-ring {
+        animation-duration: auto !important;
+      }
+      .pidx {
+        animation-name: pidx-show-fade;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pidx,
+    .pidx-panel {
+      transform: none;
+    }
+  }
+  @keyframes pidx-show {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      visibility: visible;
+    }
+  }
+  @keyframes pidx-show-fade {
+    from {
+      opacity: 0;
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+  @keyframes pidx-ring-fill {
+    to {
+      --pidx-ring: 100%;
+    }
+  }
+</style>
