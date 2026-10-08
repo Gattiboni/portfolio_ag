@@ -6,10 +6,11 @@ the bottom. Each entry records **Context, Alternatives, Decision, Rationale,
 Owner, Status**. A decision that is later reversed is not deleted: it gets a new
 entry that supersedes it.
 
-Roles: **Alan** decides and validates in the browser. A chat assistant drafts
-specs, copy and docs. A code agent implements and never commits. Two gates sit
-between them: the plan is reviewed before any file is touched (α), and the diff
-plus tests are reviewed before anything is integrated (β).
+Roles: **Alan** decides, validates what the eye has to judge, and makes every
+commit. A chat assistant drafts specs, copy and docs. A code agent implements
+and never commits. Two gates sit between them: the plan is reviewed before any
+file is touched (α), and the result is validated at runtime before anything is
+integrated (β). See D014 for who runs which check.
 
 ---
 
@@ -141,7 +142,10 @@ Raw downloads live in `assets-src/`, which is ignored; only optimised outputs
 whose licence allows it are committed, and the source URL and author are
 credited in the README.
 
-**Owner.** Alan. **Status.** Closed. Clip selection in progress.
+**Owner.** Alan. **Status.** Closed. Clip chosen on 2026-10-08: "Close-up of
+Lit Match Burning in Dark" by Scott Precious, downloaded from Pexels under the
+Pexels licence. The loop is cut from the original file, not from a copy that
+passed through another tool's library.
 
 ---
 
@@ -176,7 +180,7 @@ by git.
 would undo D005 in the one place that cannot be edited later. The same file
 remains on the current host until seven days after cutover, so nothing is lost.
 
-**Owner.** Assistant proposed, Alan to confirm. **Status.** Proposed.
+**Owner.** Assistant proposed, Alan confirmed. **Status.** Closed.
 
 ---
 
@@ -193,7 +197,7 @@ same hiring teams the site is built for.
 **Rationale.** A decision log nobody on the hiring side can read is not
 evidence of anything.
 
-**Owner.** Assistant proposed, Alan to confirm. **Status.** Proposed.
+**Owner.** Assistant proposed, Alan confirmed. **Status.** Closed.
 
 ---
 
@@ -210,6 +214,100 @@ header, the contact section and the footer.
 
 **Rationale.** Alan's call: get the site standing first. The profile review is
 tracked in the roadmap as later work.
+
+**Owner.** Alan. **Status.** Closed.
+
+---
+
+## D011 — 2026-10-08 · Pinned versions; the toolchain sets the Node floor
+
+**Context.** At scaffold time the newest release of each tool did not form a
+working set. The Astro ESLint plugin compatible with ESLint 10 requires Node
+22.22.3 or newer, above Astro's own minimum of 22.12.0. TypeScript 7 was
+current, but the Astro type checker and typescript-eslint accept 6 at most.
+
+**Alternatives.** (a) Stay on the installed Node and use the previous
+generation of the lint stack (ESLint 9). (b) Update Node within the 22 line and
+use the current stack. (c) Move to Node 24.
+
+**Decision.** (b). Every dependency is pinned to an exact version. `engines.node`
+is `^22.22.3 || ^24.16.0 || >=26.3.0`, the strictest requirement in the
+toolchain. TypeScript stays on 6.0.3 until both checkers accept 7.
+
+**Rationale.** A project created today should not start one lint generation
+behind. A minor Node update inside the same line changes no behaviour for the
+other projects on the same machine; a major jump might. Exact pins make the
+build reproducible and make every upgrade a visible diff.
+
+**Owner.** Code agent raised it and stopped, Alan decided. **Status.** Closed.
+Revisit the TypeScript pin when `@astrojs/check` and typescript-eslint support 7.
+
+---
+
+## D012 — 2026-10-08 · Fonts self-hosted from Fontsource, latin subset declared by hand
+
+**Context.** The production site loads its three families from a third-party
+font CDN. The variable Fontsource packages ship a single stylesheet that covers
+every script.
+
+**Alternatives.** (a) Import the package stylesheets as they are. (b) Declare
+`@font-face` in the project against the latin files only. (c) Astro's built-in
+fonts option, which downloads at build time and generates metric-adjusted
+fallbacks.
+
+**Decision.** (b). Fraunces 300 to 600 with italic 300 to 400 and its optical
+size axis, Sora 300 to 600, IBM Plex Mono 400 and 500 from the package's static
+latin sheets.
+
+**Rationale.** No request leaves the site for a font, and only the latin files
+are built. (c) is not adopted now because its documentation covers weight
+ranges and says nothing about other variable axes, and the display face depends
+on optical size. To adopt it later: declare the three families in the config
+and replace the stylesheet import with the font component. To revert: remove
+that block and restore `src/styles/fonts.css`.
+
+**Owner.** Code agent proposed, Alan confirmed. **Status.** Closed. (c) is
+re-evaluated in the launch phase, when preload and fallback metrics start to
+matter for performance.
+
+---
+
+## D013 — 2026-10-08 · ESLint for code, Prettier for everything
+
+**Context.** The scaffold instruction asked for lint and formatting "covering"
+Astro, TypeScript, CSS, Markdown and JSON. ESLint needs three more packages to
+lint the last three.
+
+**Alternatives.** (a) Add the three ESLint language plugins. (b) ESLint lints
+`.astro` and `.ts`; Prettier formats all five.
+
+**Decision.** (b).
+
+**Rationale.** Three dependencies for rules nobody has asked for yet. The
+ambiguity was in the instruction, not in the implementation. `docs/` and
+`LICENSE` are excluded from Prettier so that committed documents are never
+reformatted by a tool.
+
+**Owner.** Assistant. **Status.** Closed.
+
+---
+
+## D014 — 2026-10-08 · Who validates what
+
+**Context.** The first β mixed checks a person should not spend time on (exit
+codes, attributes in built HTML, network requests) with checks only a person
+can make (does it look right).
+
+**Alternatives.** (a) Alan runs every check. (b) Mechanical and precision
+checks go to an agent; visual judgement and decisions stay with Alan.
+
+**Decision.** (b). The code agent runs the command-line checks and pastes raw
+output. A second agent drives a real browser for computed styles, loaded fonts
+and network requests, and independently re-reads the files the code agent
+reported on. Both report before Alan reads the documentation and commits.
+
+**Rationale.** The agent that wrote the code is not the only one that checks
+it, and the person's attention goes where it cannot be replaced.
 
 **Owner.** Alan. **Status.** Closed.
 

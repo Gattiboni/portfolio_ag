@@ -1,0 +1,47 @@
+---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
+import { site, type Locale } from "../config/site";
+import "../styles/fonts.css";
+import "../styles/tokens.css";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+
+// BCP 47 tags for <html lang> and hreflang; route locales stay short ("pt").
+const langTag: Record<Locale, string> = { en: "en", pt: "pt-BR" };
+
+const locale = (Astro.currentLocale ?? site.defaultLocale) as Locale;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang={langTag[locale]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {site.locales.map((l) => (
+      <link
+        rel="alternate"
+        hreflang={langTag[l]}
+        href={getAbsoluteLocaleUrl(l)}
+      />
+    ))}
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={getAbsoluteLocaleUrl(site.defaultLocale)}
+    />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

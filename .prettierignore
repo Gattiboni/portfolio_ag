@@ -1,0 +1,13 @@
+# Build output and generated files
+dist/
+.astro/
+node_modules/
+package-lock.json
+
+# Not sources of this project (D006, D008)
+legacy/
+assets-src/
+
+# Already committed in the foundation step; formatted by hand, not by Prettier.
+docs/
+LICENSE

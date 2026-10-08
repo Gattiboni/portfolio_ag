@@ -14,17 +14,17 @@ ported with parity and committed.** Redesign happens on top of a safety net.
 - [x] Inventory of the production site and its assets
 - [x] Repository created, licence and `.gitignore` in place
 - [x] Decision log, changelog, roadmap and visual identity
-- [ ] First commit: docs only, before any code
+- [x] First commit: docs only, before any code
 
 ## Phase 2 · Scaffold
 
-- [ ] Check current stable versions (Astro, Node, Vercel integration, locale
+- [x] Check current stable versions (Astro, Node, Vercel integration, locale
       routing and language redirect) against the docs on the day
-- [ ] Astro project at the repository root: strict TypeScript, ESLint, Prettier,
+- [x] Astro project at the repository root: strict TypeScript, ESLint, Prettier,
       scripts for `dev`, `build`, `preview`, `lint`, `format`
-- [ ] Design tokens in one CSS file; fonts self-hosted
-- [ ] One config file for contact details and external links
-- [ ] README, written after the scaffold so it describes what exists
+- [x] Design tokens in one CSS file; fonts self-hosted
+- [x] One config file for contact details and external links
+- [x] README, written after the scaffold so it describes what exists
 - [ ] Vercel project connected, deploying to a preview URL. The domain does not
       move yet.
 

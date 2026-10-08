@@ -1,0 +1,12 @@
+# Normalise text files to LF in the repository and in the working tree.
+* text=auto eol=lf
+
+# Binary assets: never diff or convert.
+*.png   binary
+*.jpg   binary
+*.webp  binary
+*.avif  binary
+*.mp4   binary
+*.webm  binary
+*.woff2 binary
+*.ico   binary

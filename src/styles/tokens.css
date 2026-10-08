@@ -1,0 +1,53 @@
+/*
+ * Design tokens. Single source of truth for CSS variables.
+ * Values mirror docs/VISUAL_IDENTITY.md; changing one is a decision (D-log).
+ */
+:root {
+  /* Colour */
+  --bg: #11161b;
+  --panel: #171e25;
+  --panel-2: #1a222a;
+  --line: rgb(242 237 227 / 0.09);
+  --cream: #f2ede3;
+  --cream-dim: #bdb8ac;
+  --muted: #8a948d;
+  --teal: #3fa396;
+  --teal-soft: rgb(63 163 150 / 0.12);
+  --gold: #d4a643;
+  --gold-soft: rgb(212 166 67 / 0.12);
+  --bronze: #a66b3f;
+  --silver: #9fa8ad;
+
+  /* Deep-dive graph: one hue per zone */
+  --zone-1: #3fa396;
+  --zone-2: #4e9bc7;
+  --zone-3: #d4a643;
+  --zone-4: #e9a0b0;
+  --zone-5: #59a14f;
+  --zone-6: #b07aa1;
+  --zone-7: #a66b3f;
+  --zone-8: #9fa8ad;
+
+  /* Type families (faces declared in fonts.css) */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:
+    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  /* Type scale */
+  --fs-h1: clamp(2.2rem, 5.6vw, 4.3rem);
+  --lh-h1: 1.08;
+  --fs-h2: clamp(1.9rem, 4vw, 2.9rem);
+  --lh-h2: 1.12;
+  --fs-body: 1rem;
+  --lh-body: 1.6;
+
+  /* Shape */
+  --radius: 14px;
+  --radius-pill: 999px;
+
+  /* Layout */
+  --content-width: 1080px;
+  --content-padding: 28px;
+  --section-space: 110px;
+}

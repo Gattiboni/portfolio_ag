@@ -1,0 +1,38 @@
+/*
+ * Self-hosted fonts from Fontsource packages, latin subset only.
+ * The variable packages ship one stylesheet covering every subset, so the
+ * faces are declared here against the latin files directly. Declared weight
+ * ranges follow docs/VISUAL_IDENTITY.md, not the full range of the files.
+ */
+
+/* IBM Plex Mono has no variable build; the static per-subset sheets are used.
+   @import must precede every other rule. */
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 600;
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2")
+    format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 300 400;
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-opsz-italic.woff2")
+    format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 600;
+  src: url("@fontsource-variable/sora/files/sora-latin-wght-normal.woff2")
+    format("woff2-variations");
+}
