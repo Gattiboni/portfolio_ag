@@ -8,12 +8,13 @@
  * production, the card's own transition wins on revealed cards.
  */
 
+/* Width and side padding only; vertical rhythm belongs to section below. */
 .wrap {
   position: relative;
   z-index: 1;
   max-width: var(--content-width);
   margin: 0 auto;
-  padding: 0 var(--content-padding);
+  padding-inline: var(--content-padding);
 }
 
 /* Reveal on scroll; src/scripts/reveal.ts adds .in. Without JavaScript a
@@ -30,10 +31,28 @@
   transform: none;
 }
 
-/* Type selector on purpose: as in production, .wrap's padding overrides it,
-   so only sections without .wrap (the flagship case) get this rhythm. */
+/* Vertical rhythm, the one rule for every section. --section-space is the
+   distance between the content of two neighbouring sections, so each section
+   carries half of it above and below: two neighbours add up to the whole,
+   and content next to a band's line (the case, the marquee) sits half a
+   measure from it. A section without .wrap is full-bleed: a band with its own
+   background and lines (the case), which carries the whole measure inside.
+
+   Jumping to a section (bar, index, hero cue, URL hash) puts its label half a
+   measure below the fixed bar, the same in every section. The band's extra
+   -1px is its top line, which sits above the label. */
 section {
-  padding: var(--section-space) 0;
+  --section-pad: calc(var(--section-space) / 2);
+  padding-block: var(--section-pad);
+  scroll-margin-top: calc(
+    var(--bar-height) + var(--section-space) / 2 - var(--section-pad)
+  );
+}
+section:not(.wrap) {
+  --section-pad: var(--section-space);
+  scroll-margin-top: calc(
+    var(--bar-height) + var(--section-space) / 2 - var(--section-pad) - 1px
+  );
 }
 .sec-head {
   margin-bottom: 54px;

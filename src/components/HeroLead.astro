@@ -15,7 +15,8 @@ const { t } = Astro.props;
 
 <style is:global>
   /* Global, not scoped: the dictionary's inline markup carries no scope
-     attribute. Compound selector so it beats .wrap's padding. */
+     attribute. Not a section, so the section rhythm does not apply; its own
+     spacing is unchanged from production. */
   .hero-lead.wrap {
     padding-top: 40px;
     padding-bottom: 60px;

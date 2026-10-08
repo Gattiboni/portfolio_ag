@@ -124,6 +124,9 @@ const c = t.chat;
     padding: 11px 15px;
     border-radius: 16px;
     font-size: 0.86rem;
+    /* Production showed 400 because its 300 never loaded; the body's 300
+       would be too thin here. The user bubble's own 500 still wins. */
+    font-weight: 400;
     line-height: 1.55;
     animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   }

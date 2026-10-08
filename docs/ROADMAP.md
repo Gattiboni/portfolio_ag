@@ -62,7 +62,8 @@ ported with parity and committed.** Redesign happens on top of a safety net.
       place of the footer link (D021)
 - [x] One list of sections feeding the page, the bar and the index
 - [x] β: code agent, browser agent on the built files, Alan's eye on desktop
-- [ ] Small round before Phase 6: the items marked "next round" below
+- [x] Small round before Phase 6: section rhythm (D022), lightbox, chat
+      weight, name in the bar
 
 ## Phase 6 · Deep dive
 
@@ -108,11 +109,12 @@ has a phase.
 - [x] Language switch with `localStorage` blocked and a Portuguese browser:
       choosing English returned to `/pt/` (fixed in Phase 4)
 - [x] The language redirect dropped the query string (fixed in Phase 4)
-- [ ] Chat demo text renders at weight 300; the previous site showed 400 because
-      its 300 never loaded (next round)
-- [ ] Lightbox does not trap keyboard focus and does not cap image height
-      (next round)
-- [ ] Brand wraps to two lines between 330 and 359 px (next round)
+- [x] Chat demo text renders at weight 300; the previous site showed 400 because
+      its 300 never loaded (fixed in the small round)
+- [x] Lightbox does not trap keyboard focus and does not cap image height
+      (fixed in the small round)
+- [x] Brand wraps to two lines between 330 and 359 px (fixed in the small
+      round)
 - [x] Back-to-top exists only in the footer; it should follow the scroll
       (done in Phase 5, D021)
 - [ ] Dashes used as stylistic punctuation in the copy, against the voice rule
@@ -125,7 +127,7 @@ has a phase.
 ## Found during the hero work
 
 - [ ] On phones the contrast layer greys the base of the flame. Try a smaller,
-      higher video instead of a scrim over it (next round)
+      higher video instead of a scrim over it (with the phone β)
 - [ ] Largest contentful paint is the brand in the bar, at 2.3 to 2.7 s in a
       clean lab run on slow 4G. Font preload and the built-in fonts option
       (D012) are the levers (Phase 8)
@@ -141,13 +143,16 @@ has a phase.
 
 ## Found during the motion work
 
-- [ ] Vertical spacing between sections is uneven and often too tight: only the
-      main case has padding of its own, the other five sections have none, so
-      one section's last line touches the next one's label. Inherited from the
-      previous site. Review and standardise (next round; a decision, see the
-      open list)
+- [x] Vertical spacing between sections was uneven and often too tight: only
+      the main case had padding of its own (fixed in the small round, D022)
 - [ ] On phones, at the very end of the page, the index control sits over the
-      footer line (next round, with the spacing)
+      footer line. Seen by the author, who does not mind it for now and will
+      revisit
+- [ ] Below 360 px the name in the bar no longer lines up with the content
+      margin (16 px against 28 px at 320). Accepted with the fix that keeps it
+      on one line
+- [ ] On phones the lightbox arrows sit over the edges of the image, as on the
+      previous site (Phase 7, with the gallery decision)
 - [ ] The bars over the revenue figure carry no labels. Decide with the copy
       whether they need any (Phase 7)
 

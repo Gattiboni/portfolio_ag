@@ -1,7 +1,8 @@
 // Lightbox for the gallery: opens on item click, closes on the close button,
-// backdrop click or Escape, steps with the arrows (buttons and keyboard), and
-// returns focus to the item that opened it. Images are never shown larger
-// than their natural size.
+// backdrop click or Escape, steps with the arrows (buttons and keyboard),
+// keeps keyboard focus on its own controls while open, and returns focus to
+// the item that opened it. Images are never shown larger than their natural
+// size.
 
 export function initLightbox(): void {
   const lb = document.getElementById("lb");
@@ -80,8 +81,28 @@ export function initLightbox(): void {
       close();
     }
   });
+  // Tab and Shift+Tab cycle through the lightbox's own controls only. Focus
+  // can be outside them after a click on the image; the next Tab brings it
+  // back to the first (or, with Shift, the last) control.
+  const controls = [closeBtn, prevBtn, nextBtn];
+  const cycleFocus = (backwards: boolean): void => {
+    const at = controls.indexOf(document.activeElement as HTMLElement);
+    const step = backwards ? -1 : 1;
+    const next =
+      at < 0
+        ? backwards
+          ? controls.length - 1
+          : 0
+        : (at + step + controls.length) % controls.length;
+    controls[next]?.focus();
+  };
+
   addEventListener("keydown", (e) => {
     if (!lb.classList.contains("open")) return;
+    if (e.key === "Tab") {
+      e.preventDefault();
+      cycleFocus(e.shiftKey);
+    }
     if (e.key === "Escape") close();
     if (e.key === "ArrowRight") open(current + 1);
     if (e.key === "ArrowLeft") open(current - 1);

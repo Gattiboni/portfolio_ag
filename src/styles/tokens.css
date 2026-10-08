@@ -51,4 +51,7 @@
   --content-width: 1080px;
   --content-padding: 28px;
   --section-space: 110px;
+  /* Height of the fixed bar in Nav.astro: 16px padding above and below the
+     28px controls, plus its 1px line. One line at every width. */
+  --bar-height: 61px;
 }

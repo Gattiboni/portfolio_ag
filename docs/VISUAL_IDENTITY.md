@@ -66,10 +66,12 @@ Scale in production: `h1` `clamp(2.2rem, 5.6vw, 4.3rem)` at line-height 1.08;
 
 - Radius: 14 px on cards and panels, 999 px on buttons and chips
 - Content width: 1080 px, 28 px side padding
-- Section rhythm: 110 px top and bottom on the case study section only. The
-  other sections carry no vertical padding of their own: in the previous CSS
-  the container rule overrode the section rule, and the port reproduces what
-  was rendered, not what was intended
+- Section rhythm: `--section-space`, 110 px, is the distance between the
+  content of two neighbouring sections; each section carries half above and
+  below. A full-width band (the main case) keeps the whole measure inside, and
+  content sits 55 px from a band's line. Same values at every width (D022)
+- After a jump, a section's label sits 55 px below the fixed bar, which is
+  61 px high at every width (`--bar-height`)
 - Breakpoints in use: 560, 640, 760, 820, 860 px (not consolidated yet)
 
 ## Motion in production

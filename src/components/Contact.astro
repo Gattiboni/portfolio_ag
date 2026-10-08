@@ -44,8 +44,9 @@ const c = t.contact;
   .contact {
     text-align: left;
   }
-  /* Compound selector so this beats .wrap's padding regardless of
-     stylesheet order (production relied on source order). */
+  /* The last section ends on the footer, not on another section: it keeps
+     its own bottom space. Compound selector so it beats the section rhythm
+     in primitives.css regardless of stylesheet order. */
   .contact.wrap {
     padding-bottom: 80px;
   }

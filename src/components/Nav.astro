@@ -122,19 +122,26 @@ const langs = [
     background: rgb(17 22 27 / 0.74);
     border-bottom: 1px solid var(--line);
   }
+  /* The bar needs 360px to fit on one line. Below that, --nav-squeeze grows
+     by 1px per pixel lost, and the side padding, the gap and the name give
+     back 0.3, 0.25 and about 0.35 of it (48px at 320px wide for the 40px
+     missing). It is 0 from 360px up, so nothing changes there. A fluid
+     value, not a breakpoint. */
   .nav-inner {
+    --nav-squeeze: max(0px, 360px - 100vw);
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 16px var(--content-padding);
+    padding: 16px calc(var(--content-padding) - var(--nav-squeeze) * 0.3);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+    gap: calc(18px - var(--nav-squeeze) * 0.25);
   }
   .brand {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: calc(1.05rem - var(--nav-squeeze) * 0.05);
+    white-space: nowrap;
     letter-spacing: 0.02em;
     color: var(--cream);
     text-decoration: none;

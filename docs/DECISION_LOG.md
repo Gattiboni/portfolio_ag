@@ -528,11 +528,42 @@ list); code agent (the end-of-page rule and the marquee field).
 
 ---
 
+## D022 — 2026-10-08 · One vertical rhythm for every section, breaking parity on purpose
+
+**Context.** The previous site declared 110 px above and below every section,
+but its container rule cancelled that on every section that was also a
+container. Only the main case, which is not one, kept its padding. The port
+reproduced what rendered (D015): five of six sections with no vertical space of
+their own, one section's last line touching the next one's label, and the
+point of view touching the top line of the case band. Alan flagged it on the
+running site.
+
+**Alternatives.** (a) 110 px above and below each section, 220 between two
+neighbours. (b) 110 px in total between the content of two neighbours.
+
+**Decision.** (b), Alan's call. One token, `--section-space`, and one rule:
+each section carries half of it above and below. A section that is a
+full-width band with its own lines (the main case) keeps the whole measure
+inside, and ordinary content sits half a measure from a band's line. The
+container class now only sets width and side padding. Jumping to a section
+lands its label half a measure below the fixed bar; before, the label was
+hidden behind the bar.
+
+**Rationale.** The rhythm is now a property of the system, not of each
+component, and it is the intent the old stylesheet had and never delivered.
+The last section is the one exception that cannot be fixed without padding the
+end of the page: there is not enough page below it for its label to reach the
+bar, so it stops lower. The label is fully visible, and the footer was left
+alone.
+
+**Owner.** Alan (the flag and the measure); assistant (the band rule and the
+jump requirement); code agent (the implementation). **Status.** Closed. This
+supersedes the "section rhythm" line of D015's parity for good.
+
+---
+
 ## Open
 
-- **Section rhythm.** Five of the six sections carry no vertical padding, an
-  accident inherited from the previous site and reproduced by the port (D015).
-  Standardising it changes the rendered layout, so it is a decision.
 - **Text over the hero video.** How much copy sits on the video before the fade.
 - **Deep dive: scope, disclosure levels and graph.** Whether every edge in the
   graph must represent a relation declared in the data.
